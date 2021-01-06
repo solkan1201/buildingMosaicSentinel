@@ -341,6 +341,7 @@ def exportarClassification(imgTransf, nameAl, geomet):
         print ( "  {} : {}".format(keys, vals))
     print ("salvando ... !")
 
+## https://code.earthengine.google.com/4aa004aae390f0c4dc5708ece511796b
 ## https://code.earthengine.google.com/f308b42668bed2d6917a03ad362fd1e8
 params = {
     "ccobert": 60,
