@@ -4,11 +4,11 @@ This project aims to develop a methodology for the creation of analytical images
 
 Figure #1: 
 <p align= "center">
-    <img src="imagens/gradesBA_Caatinga_juntas.png">
+    <img src="image/gradesBA_Caatinga_juntas.png">
 </p>
 
 
 
 <p align="center">
-    <img  src="images/fluxograma_mosaicS2.png">
+    <img  src="image/fluxograma_mosaicS2.png">
 </p>
