@@ -8,7 +8,7 @@ import copy
 import math
 import json
 # import arqNewparamcopy as aparam
-import lsTiles
+import lsTiles as auxiliar
 try:
   ee.Initialize()
   print('The Earth Engine package initialized successfully!')
@@ -58,9 +58,7 @@ class ClassCalcIndicesSpectral(object):
 
         # salvando em um diccionario as propiedades dde Classify da ref
         self.equalizeRef(geomRef)
-
-        self.classificadorTrained = ClassifTrained
-    
+        
     
     def updateParametros(self, uImg, mMapBiomas, geomet):
         
@@ -69,10 +67,6 @@ class ClassCalcIndicesSpectral(object):
         self.maskMapbiomas = mMapBiomas.set('system:footprint', geomet)
 
         self.geomet = geomet
-
-    def getImgCollectionCloud(self, imgColCC):
-        self.imgColClouds = imgColCC
-    
 
     def maskS2clouds(self, imgP):
 
@@ -161,7 +155,6 @@ class ClassCalcIndicesSpectral(object):
 
             self.dictClassifRef[bnd] = ClassfImgRef
     
-
     def equalize(self, image_, bnd, geomet):        
 
         propertImg = self.getFC(image_.select(bnd), bnd, geomet)        
@@ -195,27 +188,170 @@ class ClassCalcIndicesSpectral(object):
 
         return matching
     
+    
+    def agregateBandsIndexNDVI(self, img):
+    
+        ndviImg = img.expression("float(b('B8') - b('B12')) / (b('B8') + b('B12'))")\
+            .rename(['ndvi'])       
+
+        return img.addBands(ndviImg)
+
+    def agregateBandsIndexWater(self, img):
+    
+        ndwiImg = img.expression("float(b('B8') - b('B12')) / (b('B8') + b('B12'))")\
+            .rename(['ndwi'])       
+
+        return img.addBands(ndwiImg)
+
+    def agregateBandsIndexEVI(self, img):
+            
+        eviImg = img.expression(
+            "float(2.4 * (b('B8') - b('B4')) / (1 + b('B8') + b('B4')))")\
+                .rename(['evi'])     
+        
+        return img.addBands(eviImg)
+    
+    def agregateBandsIndexLAI(self, img):
+    
+        laiImg = img.expression(
+            "(3.618 * float(b('evi') - 0.118))")\
+                .rename(['lai'])     
+    
+        return img.addBands(laiImg)
+    
+    def agregateBandsIndexGCVI(self, img):
+    
+        gcviImgA = img.expression(
+            "float(b('B8')) / (b('B3')) - 1").divide(10)\
+                .rename(['gcvi'])        
+        
+        return img.addBands(gcviImgA)
+    
+    def agregateBandsIndexOSAVI(self,img):
+    
+        osaviImg = img.expression(
+            "float(b('B8') - b('B4')) / (0.16 + b('B8') + b('B4'))")\
+                .rename(['osavi'])        
+        
+        return img.addBands(osaviImg)
+    
+    def agregateBandsIndexSoil(self, img):
+        
+        soilImg = img.expression(
+            "float(b('B8') - b('B3')) / (b('B8') + b('B3'))")\
+                .rename(['soil'])       
+        
+        return img.addBands(soilImg)    
+
+    def agregateBandsIndexBAI(self, img):
+    
+        baiImg = img.expression(
+            "float(1) / ((0.1 - b('B4'))**2 + (0.06 - b('B8'))**2)")\
+                .rename(['bai']) 
+        
+        return img.addBands(baiImg)
+    
+    def agregateBandsTexturasGLCM(self, img):
+        
+        img = img.toInt()
+                
+        textura2 = img.select('B8').glcmTexture(3)        
+
+        entropia = textura2.select('B8_ent').divide(10000).rename('ent')            
+        variancia = textura2.select('B8_var').divide(10000).rename('var')
+
+        img = img.addBands(entropia).addBands(variancia)
+        
+        return  img.select(['ent','var'])
+        
+    def agregateBandsgetFractions(self, img):
+
+        # Define endmembers
+        endmembers =  [
+            [ 119.0,  475.0,  169.0, 6250.0, 2399.0,  675.0], #/*gv*/
+            [1514.0, 1597.0, 1421.0, 3053.0, 7707.0, 1975.0], #/*npv*/
+            [1799.0, 2479.0, 3158.0, 5437.0, 7707.0, 6646.0], #/*soil*/
+            [4031.0, 8714.0, 7900.0, 8989.0, 7002.0, 6607.0], #/*cloud*/
+            [   0.0,    0.0,    0.0,    0.0,    0.0,    0.0]  #/*Shade*/
+        ]
+
+        # Uminxing data
+        fractions = ee.Image(img).select(self.options['bandas'])\
+                        .unmix(endmembers= endmembers).float()
+        
+        fractions = fractions.select([0,1,2,3,4], self.options['bandsFraction'])        
+        return img.addBands(fractions)
 
 
+    def agregateBandsIndexNDFIA(self, img):
+
+        #calculate NDFI
+        ndfia = img.expression(
+            "float(b('gv') - b('soil')) / float( b('gv') + 2 * b('npv') + b('soil'))")
+        
+        ndfia = ndfia.rename('ndfia')
+        
+        return img.select(['npv']).addBands(ndfia) # 'gv',
+
+    def CalculateIndice(self, imageW):         
+        
+        geomet = imageW.geometry()
+        # imagem em Int16 com valores inteiros ate 10000        
+        imageF = self.agregateBandsgetFractions(imageW)
+        imageF = self.agregateBandsIndexNDFIA(imageF)
+        # imageT = self.agregateBandsTexturasGLCM(imageW)
+        imageW = imageW.divide(10000)
+        imageW = imageW.set('system:footprint', geomet)
+
+        imageW = self.agregateBandsIndexEVI(imageW)         
+        imageW = self.agregateBandsIndexWater(imageW) 
+        imageW = self.agregateBandsIndexNDVI(imageW)               
+        imageW = self.agregateBandsIndexOSAVI(imageW)
+        imageW = self.agregateBandsIndexGCVI(imageW)
+        imageW = self.agregateBandsIndexSoil(imageW)        
+        imageW = self.agregateBandsIndexLAI(imageW)
+        
+        return imageW.addBands(imageF)
 
 
+def exportarClassification(imgTransf, nameAl, geomet):
+    
+    #noReg = 2
+    
+    # IdAsset = 'projects/mapbiomas-arida/ALERTAS/alertas-brutos/creados/' + nameAl    
+    IdAsset = 'projects/mapbiomas-arida/ALERTAS/alertas-brutos/gerados/' + nameAl
+    print(" en id Asset:")
+    print("   <> {}".format(IdAsset))
+    
+    optExp = {
+        'image': imgTransf, #.toInt16()
+        'description': nameAl, 
+        'assetId':IdAsset, 
+        'pyramidingPolicy': {".default": "mode"},  
+        'region': geomet.getInfo()['coordinates'],
+        'scale': 10,
+        'maxPixels': 1e13 
+    }
 
+    task = ee.batch.Export.image.toAsset(**optExp)    
+    task.start()
+    print("reporte do status")
 
+    for keys, vals in dict(task.status()).items():
+        print ( "  {} : {}".format(keys, vals))
+    print ("salvando ... !")
+
+## https://code.earthengine.google.com/f308b42668bed2d6917a03ad362fd1e8
 params = {
-    "ccobert": 80,
+    "ccobert": 60,
     "start": None,
-    "end": None,
-    'corte': None,
-    "dateAnalysis": None,    
+    "end": None,   
     "mes": None,
     "ano": 2020,
-    'region': 1,
-    'nomeRegion': None,
-    "bandaM": "classification_2019",
     "bandasAll": ['B2','B3', 'B4', 'B8', 'B11', 'B12'],        
     "listclassesMB": [1,2,3,4,5,9,10,12], 
     "idassetOut": 'users/Tarefa01_MAPBIOMAS/teste_alerta_caatinga/ver1/',
-    "gradeS2": 'users/CartasSol/shapes/shapeGrideNordeCorr',
+    "gradeS2": 'users/solkancengine17/shapes/grade_sentinel_brasil',
     "gradeS2Corr": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeNordeC',
     "assetMapbiomas": "projects/mapbiomas-workspace/public/collection5/mapbiomas_collection50_integration_v1",
     "folderROIs": {'id':'projects/mapbiomas-arida/ALERTAS/ROIs/trainingF/'},
@@ -230,6 +366,7 @@ params = {
     'path_TF': "/tabFeitas/",
     'numeroTask': 0,
     'numeroLimit': 85,
+    'isCaatinga': True,
     'conta' : {
         '0': 'caatinga01',
         '10': 'caatinga02',
@@ -247,6 +384,19 @@ params = {
     },
 }
 
+lsIndMin = []
+lsIndMax = []
+
+if params['isCaatinga']:
+    lsTiles = auxiliar.lsTilesCaat
+else:
+    lsTiles = auxiliar.lsTilesBa
+
+params['start'] = '2020-01-01'
+params['end'] = '2020-12-31'
+
+gradeS2 = ee.FeatureCollection(params['gradeS2'])
+
 datasetSent2 = ee.ImageCollection('COPERNICUS/S2_SR')\
     .filterDate(params['start'], params['end'])\
     .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert']))\
@@ -255,12 +405,69 @@ datasetSent2 = ee.ImageCollection('COPERNICUS/S2_SR')\
 datasetCloudS2 = ee.ImageCollection('COPERNICUS/S2_CLOUD_PROBABILITY')\
     .filterDate(params['start'], params['end'])
 
+print('Imagem de referencia \n ====> ' + auxiliar.imgRefCaat)
+operadorMosaic = ClassCalcIndicesSpectral(auxiliar.imgRefCaat)
+operadorMosaic.imgColClouds = datasetCloudS2
 
 
-operadorMosaic = ClassCalcIndicesSpectral()
+for tile in lsTiles[:2]:  
 
-
-for tile in lsTiles.lsTiles:
+    geomet = gradeS2.filter(ee.Filter.eq('NAME', tile)).geometry() 
     
-    print(tile)
     newDataset = datasetSent2.filter(ee.Filter.eq('MGRS_TILE', tile))
+    numImg = newDataset.size().getInfo()
+    print("Para o << {} >> temos # {}  imagens".format(tile, numImg))
+
+    lsIndexImg = newDataset.reduceColumns(ee.Reducer.toList(), ['system:index']).get('list').getInfo()
+
+    for nameId in lsIndexImg:
+        print(nameId) 
+
+    ## remoção de Nuvens
+    # newDataset = newDataset.map(lambda image: operadorMosaic.maskS2clouds(image))
+    # ##  matchiong histogram 
+    # newDataset = newDataset.map(lambda image: operadorMosaic.match_Images(image))
+
+    # print(newDataset.first().bandNames().getInfo())
+    # ## Clac
+    # newDatasetInd = newDataset.map(lambda image: operadorMosaic.CalculateIndice(image))
+
+    # lsBndEsp = newDatasetInd.first().bandNames().getInfo()
+    # print(lsBndEsp)
+
+    # ## Reducers Meand
+    # imgAnalitic = ee.Image().float()
+    # reducer = 'median_'
+    
+    # for bnd in lsBndEsp:
+
+    #     bandTemp = ee.Image(newDatasetInd.select(bnd).mean()).rename(reducer + bnd)
+    #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
+    #     imgAnalitic = imgAnalitic.addBands(bandTemp)
+
+    # ## Reducers Minimum
+    # reducer = 'min_'
+    # for bnd in lsIndMin:
+
+    #     bandTemp = ee.Image(newDatasetInd.select(bnd).min()).rename(reducer + bnd)
+    #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
+    #     imgAnalitic = imgAnalitic.addBands(bandTemp)
+    
+    # ## Reducers Maximum
+    # reducer = 'max_'
+    # for bnd in lsIndMax:
+
+    #     bandTemp = ee.Image(newDatasetInd.select(bnd).max()).rename(reducer + bnd)
+    #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
+    #     imgAnalitic = imgAnalitic.addBands(bandTemp)
+    
+    # # set properties
+    # imgAnalitic = imgAnalitic.clip(geomet)
+    # imgAnalitic = imgAnalitic.set('system:footprint', geomet)
+    # imgAnalitic = imgAnalitic.set('year', params['ano'])
+    # imgAnalitic = imgAnalitic.set('MGRS_TILE', tile)
+    # imgAnalitic = imgAnalitic.set('NUM_IMAGENS', numImg)
+
+    # # save imagens 
+    # nameAl = params['ano'] + '_' + tile
+    # exportarClassification(imgAnalitic, nameAl, geomet)
