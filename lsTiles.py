@@ -19,3 +19,243 @@ lsTilesCaat = [
 ]
 
 imgRefCaat = 'COPERNICUS/S2_SR/20200809T131249_20200809T131246_T23MQP'
+
+
+
+dictStd_IndBND = {
+    'median': [
+                'blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'evi2', 'ndvi', 
+                'ndwi', 'savi', 'pri', 'gcvi', 'hallcover', 'cai', 'gv', 'gvs', 
+                'npv', 'soil', 'cloud', 'shade', 'ndfi', 'sefi', 'wefi', 'fns'
+    ],
+    'stdDev':[
+                'blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'evi2', 'ndvi', 
+                'ndwi', 'savi', 'gcvi', 'hallcover', 'cai', 'gv', 'gvs', 
+                'npv', 'soil', 'cloud', 'shade', 'ndfi', 'sefi', 'wefi', 'fns'
+    ],
+    'min': [
+                'blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'evi2', 'ndvi', 
+                'gcvi', 'npv', 'soil'
+    ],
+    'max': [
+                'ndvi', 'ndwi', 'savi', 'gcvi', 'npv', 'soil'
+    ],
+    'amp': [
+                'nir', 'swir2', 'evi2', 'ndvi', 'ndwi', 'savi', 'pri', 'gcvi',
+                'npv', 'soil', 'ndfi'
+    ],
+    'dry': [
+                'blue', 'green', 'red', 'nir', 'swir1', 'evi2', 'ndvi', 'ndwi', 
+                'savi', 'pri', 'gcvi', 'cai', 'gv', 'npv', 'soil','ndfi', 'sefi', 
+                'fns'
+    ],
+    'wet': [
+                'blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'evi2', 'ndvi', 
+                'ndwi', 'savi', 'pri', 'gcvi', 'gv', 'npv', 'soil', 'ndfi', 'wefi',
+                'fns'
+    ],
+
+}
+
+
+
+
+
+lsBandas = [
+    'blue_median','blue_median_wet','blue_median_dry','blue_min','blue_stdDev','green_median',
+    'green_median_dry','green_median_wet','green_median_texture','green_min','green_stdDev',
+    'red_median','red_median_dry','red_min','red_median_wet','red_stdDev','nir_median',
+    'nir_median_dry','nir_median_wet','nir_min','nir_stdDev','swir1_median','swir1_median_dry',
+    'swir1_median_wet','swir1_min','swir1_stdDev','swir2_median','swir2_median_wet','evi2_amp',
+    'swir2_min','swir2_stdDev','ndvi_median_dry','ndvi_median_wet','ndvi_median','ndvi_amp',
+    'ndvi_stdDev','ndwi_median','ndwi_median_dry','ndwi_median_wet','ndwi_amp','ndwi_stdDev',
+    'evi2_median','evi2_median_dry','swir2_median_dry','evi2_median_wet','evi2_stdDev',
+    'savi_median_dry','savi_median_wet','savi_median','savi_stdDev','pri_median_dry','pri_median',
+    'pri_median_wet','gcvi_median','gcvi_median_dry','gcvi_median_wet','gcvi_stdDev','hallcover_median',
+    'hallcover_stdDev','cai_median','cai_median_dry','cai_stdDev','gv_median','gv_amp','gv_stdDev',
+    'gvs_median','gvs_median_dry','gvs_median_wet','gvs_stdDev','npv_median','soil_median','soil_amp',
+    'soil_stdDev','cloud_median','cloud_stdDev','shade_median','shade_stdDev','ndfi_median','ndfi_amp',
+    'ndfi_median_dry','ndfi_median_wet','ndfi_stdDev','sefi_median','sefi_stdDev','sefi_median_dry',
+    'wefi_median','wefi_median_wet','wefi_amp','wefi_stdDev','fns_median','fns_median_dry','fns_stdDev'
+    'slope'
+]
+
+
+mydict = {
+    'median': [],
+    'stdDev': [],
+    'min': [],
+    'max': [],
+    'amp': []
+}
+
+for bnd in lsBandas:    
+    # print(bnd)
+    if 'dry' not in bnd and 'wet' not in bnd:
+
+        if 'median' in bnd:
+            lsTemp = mydict['median']
+            lsTemp.append(bnd)
+            mydict['median'] = lsTemp
+        
+        elif 'stdDev' in bnd:
+            lsTemp = mydict['stdDev']
+            lsTemp.append(bnd)
+            mydict['stdDev'] = lsTemp
+        
+        elif 'min' in bnd:
+            lsTemp = mydict['min']
+            lsTemp.append(bnd)
+            mydict['min'] = lsTemp
+        
+        elif 'max' in bnd:
+            lsTemp = mydict['max']
+            lsTemp.append(bnd)
+            mydict['max'] = lsTemp
+        
+        elif 'amp' in bnd:
+            lsTemp = mydict['amp']
+            lsTemp.append(bnd)
+            mydict['amp'] = lsTemp
+
+
+for kk, lsBND in mydict.items():
+
+    print( "= estadistico Σ ➳ ⚡ " + kk)
+
+    for band in lsBND:
+
+        print(band)
+
+
+mydict_dry = {
+    'median': [],
+    'stdDev': [],
+    'min': [],
+    'max': [],
+    'amp': []
+}
+
+for bnd in lsBandas:    
+    # print(bnd)
+    if 'dry' in bnd:
+
+        if 'median' in bnd:
+            lsTemp = mydict_dry['median']
+            lsTemp.append(bnd)
+            mydict_dry['median'] = lsTemp
+        
+        elif 'stdDev' in bnd:
+            lsTemp = mydict_dry['stdDev']
+            lsTemp.append(bnd)
+            mydict_dry['stdDev'] = lsTemp
+        
+        elif 'min' in bnd:
+            lsTemp = mydict_dry['min']
+            lsTemp.append(bnd)
+            mydict_dry['min'] = lsTemp
+        
+        elif 'max' in bnd:
+            lsTemp = mydict_dry['max']
+            lsTemp.append(bnd)
+            mydict_dry['max'] = lsTemp
+        
+        elif 'amp' in bnd:
+            lsTemp = mydict_dry['amp']
+            lsTemp.append(bnd)
+            mydict_dry['amp'] = lsTemp
+print("")
+print("############ print periodo SECO ##################")
+
+for kk, lsBND in mydict_dry.items():
+
+    print( "= estadistico Σ ➳ ⚡  " + kk)
+
+    for band in lsBND:
+
+        print(band)
+
+mydict_wet = {
+    'median': [],
+    'stdDev': [],
+    'min': [],
+    'max': [],
+    'amp': []
+}
+
+
+for bnd in lsBandas:    
+    # print(bnd)
+    if 'wet' in bnd:
+
+        if 'median' in bnd:
+            lsTemp = mydict_wet['median']
+            lsTemp.append(bnd)
+            mydict_wet['median'] = lsTemp
+        
+        elif 'stdDev' in bnd:
+            lsTemp = mydict_wet['stdDev']
+            lsTemp.append(bnd)
+            mydict_wet['stdDev'] = lsTemp
+        
+        elif 'min' in bnd:
+            lsTemp = mydict_wet['min']
+            lsTemp.append(bnd)
+            mydict_wet['min'] = lsTemp
+        
+        elif 'max' in bnd:
+            lsTemp = mydict_wet['max']
+            lsTemp.append(bnd)
+            mydict_wet['max'] = lsTemp
+        
+        elif 'amp' in bnd:
+            lsTemp = mydict_wet['amp']
+            lsTemp.append(bnd)
+            mydict_wet['amp'] = lsTemp
+
+print("")
+print("############ print periodo chuvoso ##################")
+for kk, lsBND in mydict_wet.items():
+
+    print( "= estadistico Σ ➳ ⚡ " + kk)
+
+    for band in lsBND:
+
+        print(band)
+
+keyss = []
+dictBND = {}
+for bnd in lsBandas:    
+    # print(bnd)
+    lsNom = bnd.split('_')
+    banda = lsNom[0]
+    
+    if banda not in keyss:
+        keyss.append(banda)
+        lsT = []
+        for nbnd in lsNom[1:]:
+            lsT.append(nbnd)
+        
+        dictBND[banda] = lsT
+
+    else:
+
+        lsT = dictBND[banda]
+        addiciono = False
+        for nbnd in lsNom[1:]:
+            if nbnd not in lsT:
+                lsT.append(nbnd)
+                addiciono = True
+
+        if addiciono == True:
+            dictBND[banda] = lsT
+
+
+for bnd, lsStd in dictBND.items():
+    print("banda == ➳ ⚡ " + bnd)
+
+    for std in lsStd:
+        print(std)
+
+
+print(keyss)

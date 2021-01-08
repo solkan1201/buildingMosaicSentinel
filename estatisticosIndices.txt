@@ -1,0 +1,229 @@
+= estadistico Σ ➳ ⚡ median
+blue_median
+green_median
+green_median_texture
+red_median
+nir_median
+swir1_median
+swir2_median
+ndvi_median
+ndwi_median
+evi2_median
+savi_median
+pri_median
+gcvi_median
+hallcover_median
+cai_median
+gv_median
+gvs_median
+npv_median
+soil_median
+cloud_median
+shade_median
+ndfi_median
+sefi_median
+wefi_median
+fns_median
+= estadistico Σ ➳ ⚡ stdDev
+blue_stdDev
+green_stdDev
+red_stdDev
+nir_stdDev
+swir1_stdDev
+swir2_stdDev
+ndvi_stdDev
+ndwi_stdDev
+evi2_stdDev
+savi_stdDev
+gcvi_stdDev
+hallcover_stdDev
+cai_stdDev
+gv_stdDev
+gvs_stdDev
+soil_stdDev
+cloud_stdDev
+shade_stdDev
+ndfi_stdDev
+sefi_stdDev
+wefi_stdDev
+fns_stdDevslope
+= estadistico Σ ➳ ⚡ min
+blue_min
+green_min
+red_min
+nir_min
+swir1_min
+swir2_min
+= estadistico Σ ➳ ⚡ max
+= estadistico Σ ➳ ⚡ amp
+evi2_amp
+ndvi_amp
+ndwi_amp
+gv_amp
+soil_amp
+ndfi_amp
+wefi_amp
+
+############ print periodo SECO ##################
+= estadistico Σ ➳ ⚡  median
+blue_median_dry
+green_median_dry
+red_median_dry
+nir_median_dry
+swir1_median_dry
+ndvi_median_dry
+ndwi_median_dry
+evi2_median_dry
+swir2_median_dry
+savi_median_dry
+pri_median_dry
+gcvi_median_dry
+cai_median_dry
+gvs_median_dry
+ndfi_median_dry
+sefi_median_dry
+fns_median_dry
+= estadistico Σ ➳ ⚡  stdDev
+= estadistico Σ ➳ ⚡  min
+= estadistico Σ ➳ ⚡  max
+= estadistico Σ ➳ ⚡  amp
+
+############ print periodo chuvoso ##################
+= estadistico Σ ➳ ⚡ median
+blue_median_wet
+green_median_wet
+red_median_wet
+nir_median_wet
+swir1_median_wet
+swir2_median_wet
+ndvi_median_wet
+ndwi_median_wet
+evi2_median_wet
+savi_median_wet
+pri_median_wet
+gcvi_median_wet
+gvs_median_wet
+ndfi_median_wet
+wefi_median_wet
+= estadistico Σ ➳ ⚡ stdDev
+= estadistico Σ ➳ ⚡ min
+= estadistico Σ ➳ ⚡ max
+= estadistico Σ ➳ ⚡ amp
+
+banda == ➳ ⚡ blue
+median
+wet
+dry
+min
+stdDev
+banda == ➳ ⚡ green
+median
+dry
+wet
+texture
+min
+stdDev
+banda == ➳ ⚡ red
+median
+dry
+min
+wet
+stdDev
+banda == ➳ ⚡ nir
+median
+dry
+wet
+min
+stdDev
+banda == ➳ ⚡ swir1
+median
+dry
+wet
+min
+stdDev
+banda == ➳ ⚡ swir2
+median
+wet
+min
+stdDev
+dry
+banda == ➳ ⚡ evi2
+amp
+median
+dry
+wet
+stdDev
+banda == ➳ ⚡ ndvi
+median
+dry
+wet
+amp
+stdDev
+banda == ➳ ⚡ ndwi
+median
+dry
+wet
+amp
+stdDev
+banda == ➳ ⚡ savi
+median
+dry
+wet
+stdDev
+banda == ➳ ⚡ pri
+median
+dry
+wet
+banda == ➳ ⚡ gcvi
+median
+dry
+wet
+stdDev
+banda == ➳ ⚡ hallcover
+median
+stdDev
+banda == ➳ ⚡ cai
+median
+dry
+stdDev
+banda == ➳ ⚡ gv
+median
+amp
+stdDev
+banda == ➳ ⚡ gvs
+median
+dry
+wet
+stdDev
+banda == ➳ ⚡ npv
+median
+banda == ➳ ⚡ soil
+median
+amp
+stdDev
+banda == ➳ ⚡ cloud
+median
+stdDev
+banda == ➳ ⚡ shade
+median
+stdDev
+banda == ➳ ⚡ ndfi
+median
+amp
+dry
+wet
+stdDev
+banda == ➳ ⚡ sefi
+median
+stdDev
+dry
+banda == ➳ ⚡ wefi
+median
+wet
+amp
+stdDev
+banda == ➳ ⚡ fns
+median
+dry
+stdDevslope
+['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'evi2', 'ndvi', 'ndwi', 'savi', 'pri', 'gcvi', 'hallcover', 'cai', 'gv', 'gvs', 'npv', 'soil', 'cloud', 'shade', 'ndfi', 'sefi', 'wefi', 'fns']

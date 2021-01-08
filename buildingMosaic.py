@@ -227,6 +227,16 @@ class ClassCalcIndicesSpectral(object):
         
         return img.addBands(gcviImgA)
     
+    # Chlorophyll vegetation index
+    def agregateBandsIndexCVI(self, img):
+    
+        cviImgA = img.expression(
+            "float(b('B8') * (b('B3') / (b('B2') * b('B2'))))")\
+                .rename(['cvi'])        
+        
+        return img.addBands(cviImgA)
+    
+    
     def agregateBandsIndexOSAVI(self,img):
     
         osaviImg = img.expression(
@@ -395,6 +405,7 @@ else:
 
 params['start'] = '2020-01-01'
 params['end'] = '2020-12-31'
+
 
 gradeS2 = ee.FeatureCollection(params['gradeS2'])
 
