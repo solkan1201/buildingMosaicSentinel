@@ -21,38 +21,36 @@ lsTilesCaat = [
 imgRefCaat = 'COPERNICUS/S2_SR/20200809T131249_20200809T131246_T23MQP'
 
 
+bandasInd = ['osavi',]
+
 
 dictStd_IndBND = {
     'median': [
-                'blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'evi2', 'ndvi', 
-                'ndwi', 'savi', 'pri', 'gcvi', 'hallcover', 'cai', 'gv', 'gvs', 
-                'npv', 'soil', 'cloud', 'shade', 'ndfi', 'sefi', 'wefi', 'fns'
+                'blue','green','red','nir','swir1','swir2', 
+                'evi2','ndvi','ndwi', 'savi', 'gcvi',"awei","iia",
+                'gvmi','spri','co2flux','gv','soil','msi','wetness',
+                'brightness','cvi','lai','rvi','ratio'
+                'npv', 'soil', 'ndfi','ndfia'                
     ],
     'stdDev':[
-                'blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'evi2', 'ndvi', 
-                'ndwi', 'savi', 'gcvi', 'hallcover', 'cai', 'gv', 'gvs', 
-                'npv', 'soil', 'cloud', 'shade', 'ndfi', 'sefi', 'wefi', 'fns'
-    ],
-    'min': [
-                'blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'evi2', 'ndvi', 
-                'gcvi', 'npv', 'soil'
-    ],
-    'max': [
-                'ndvi', 'ndwi', 'savi', 'gcvi', 'npv', 'soil'
-    ],
-    'amp': [
-                'nir', 'swir2', 'evi2', 'ndvi', 'ndwi', 'savi', 'pri', 'gcvi',
-                'npv', 'soil', 'ndfi'
-    ],
+                'evi2','ndvi','ndwi', 'savi', 'gcvi',"awei","iia",
+                'gvmi','spri','co2flux','gv','soil','msi','wetness',
+                'brightness','cvi','lai','rvi','ratio'
+                'npv', 'soil', 'ndfi','ndfia'
+    ],   
     'dry': [
-                'blue', 'green', 'red', 'nir', 'swir1', 'evi2', 'ndvi', 'ndwi', 
-                'savi', 'pri', 'gcvi', 'cai', 'gv', 'npv', 'soil','ndfi', 'sefi', 
-                'fns'
+                'blue','green','red','nir','swir1','swir2', 
+                'evi2','ndvi','ndwi', 'savi', 'gcvi',"awei","iia",
+                'gvmi','spri','co2flux','gv','soil','msi','wetness',
+                'brightness','cvi','lai','rvi','ratio'
+                'npv', 'soil', 'ndfi','ndfia'
     ],
     'wet': [
-                'blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'evi2', 'ndvi', 
-                'ndwi', 'savi', 'pri', 'gcvi', 'gv', 'npv', 'soil', 'ndfi', 'wefi',
-                'fns'
+                'blue','green','red','nir','swir1','swir2', 
+                'evi2','ndvi','ndwi', 'savi', 'gcvi',"awei","iia",
+                'gvmi','spri','co2flux','gv','soil','msi','wetness',
+                'brightness','cvi','lai','rvi','ratio'
+                'npv', 'soil', 'ndfi','ndfia' 
     ],
 
 }

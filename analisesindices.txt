@@ -1,0 +1,65 @@
+Normalized Difference NIR/SWIR Normalized Burn Ratio 	NBR 	NIR−SWIR/ NIR+SWIR
+
+Green atmospherically resistant vegetation index 	GARI 	NIR−(GREEN−(BLUE−RED))/NIR−(GREEN+(BLUE−RED))
+Enhanced Vegetation Index 2 -2 	EVI2 	2.5((NIR−RED)/(NIR+2.4RED+1))
+
+Adjusted transformed soil-adjusted VI 	ATSAVI 	a(NIR−a⋅RED−b)/(a⋅NIR+RED−a⋅b+X(1+a^2)))
+	X=0.08, a=1.22, b=0.03
+
+
+Global Vegetation Moisture Index 	GVMI 	(NIR+0.1)−(SWIR+0.02) / (NIR+0.1)+(SWIR+0.02)
+ Green Soil Adjusted Vegetation Index 	GSAVI 	(1+L) *(NIR−G)/ (NIR+G+L)
+
+Plant Senescence Reflectance Index 	PSRI 	(678nm−500nm)/750nm --> (B4 - B2) /B6
+
+Green Soil Adjusted Vegetation Index 	GSAVI 	NIR−G   NIR+G+L(1+L)
+
+
+Tasselled Cap - brightness 
+Sentinel-2A 	433-2280 	13	0.3037 B2+0.2793 B3+ 0.4743 B4+ 0.5585 B 8+ 0.5082 *B10 + 0.1863B12    brigth
+Tasselled Cap - Soil Brightness Index MSS 
+ 	Sentinel-2A 	433-2280 	13 	0.332 * B3 + 0.603 *B4 + 0.675 *B6 + 0.262*B9  
+Tasselled Cap - wetness 
+ 	Sentinel-2A 	433-2280 	13 	0.1509*B2+0.1973*B3+0.3279*B4+0.3406*B8−0.7112*B11−0.4572*B12
+ Soil and Atmospherically Resistant Vegetation Index 2 
+  	Sentinel-2A 	433-2280 	13 	2,5(B9−B5)/(1+B9+6B5−7,5B2)
+  	
+  	
+var bandasInd = ['evi','gcvi','osavi','soil','gcvi','msi','wetness','brightness',
+	     'nbr','bai','cvi','gcvi','lai',"iia","awei",'ndwi','ndvi','rvi','ratio']
+	     
+	     
+	     var bandasInd = ['evi','gcvi','osavi','soil','gcvi','msi','wetness','brightness',
+	     'nbr','bai','cvi','gcvi','lai',"iia","awei",'ndwi','ndvi','rvi','ratio'
+	    
+	    
+agregateBandsIndexGCVI
+AutomatedWaterExtractionIndex
+agregateBandsIndexWater
+IndiceIndicadorAgua
+agregateBandsIndexNDVI
+agregateBandsIndexRVI
+agregateBandsIndexRATIO
+agregateBandsIndexOSAVI
+agregateBandsIndexMSI
+agregateBandsIndexNBR
+agregateBandsIndexBAI
+agregateBandsIndexCVI
+agregateBandsIndexLAI
+agregateBandsIndexEVI
+agregateBandsIndexSoil
+agregateBandsIndexwetness
+agregateBandsIndexBrightness
+
+
+
+
+
+'evi2' =(evi/10 + 1) * 10000,
+'ndvi' = (ndvi + 1) * 10000,
+'ndwi' = (ndwi + 1) * 10000,
+'savi', 'gcvi', "awei","iia"
+                ,'gvmi','spri','co2flux','gv','soil','msi','wetness',
+                'brightness','cvi','lai','rvi','ratio'
+
+

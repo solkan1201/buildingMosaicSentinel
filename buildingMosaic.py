@@ -188,6 +188,20 @@ class ClassCalcIndicesSpectral(object):
 
         return matching
     
+    def agregateBandsIndexRATIO(self, img):
+    
+        ratioImg = img.expression("float(b('B8') / b('B4'))")\
+                                .rename(['ratio'])      
+
+        return img.addBands(ratioImg)
+
+    def agregateBandsIndexRVI(self, img):
+    
+        rviImg = img.expression("float(b('B4') / b('B8'))")\
+                                .rename(['rvi'])       
+
+        return img.addBands(rviImg)
+
     
     def agregateBandsIndexNDVI(self, img):
     
@@ -196,12 +210,32 @@ class ClassCalcIndicesSpectral(object):
 
         return img.addBands(ndviImg)
 
+    
     def agregateBandsIndexWater(self, img):
     
         ndwiImg = img.expression("float(b('B8') - b('B12')) / (b('B8') + b('B12'))")\
             .rename(['ndwi'])       
 
         return img.addBands(ndwiImg)
+    
+    
+    def AutomatedWaterExtractionIndex(img):
+    
+        awei = img.expression(
+                            "float(4 * (b('green') - b('swir2')) - (0.25 * b('nir') + 2.75 * b('swir1')))"
+                        ).rename("awei")          
+        
+        return img.addBands(awei)
+
+
+    def IndiceIndicadorAgua(img):
+    
+        awei = img.expression(
+                "float((b('green') - 4 *  b('nir')) / (b('green') + 4 *  b('nir')))"
+        ).rename("iia")
+        
+        return img.addBands(awei)
+
 
     def agregateBandsIndexEVI(self, img):
             
@@ -210,6 +244,7 @@ class ClassCalcIndicesSpectral(object):
                 .rename(['evi'])     
         
         return img.addBands(eviImg)
+    
     
     def agregateBandsIndexLAI(self, img):
     
@@ -245,6 +280,7 @@ class ClassCalcIndicesSpectral(object):
         
         return img.addBands(osaviImg)
     
+    
     def agregateBandsIndexSoil(self, img):
         
         soilImg = img.expression(
@@ -253,6 +289,7 @@ class ClassCalcIndicesSpectral(object):
         
         return img.addBands(soilImg)    
 
+    
     def agregateBandsIndexBAI(self, img):
     
         baiImg = img.expression(
@@ -260,6 +297,73 @@ class ClassCalcIndicesSpectral(object):
                 .rename(['bai']) 
         
         return img.addBands(baiImg)
+    
+    # Normalized Difference NIR/SWIR Normalized Burn Ratio 
+    def agregateBandsIndexNBR(self, img):
+    
+        nbrImg = img.expression(
+            "float((b('nir') - b('swir')) / (b('nir') + b('swir')))")\
+                .rename(['nbr']) 
+        
+        return img.addBands(nbrImg)
+    
+    # Tasselled Cap - brightness 
+    def agregateBandsIndexBrightness(self, img):
+    
+        tasselledCapImg = img.expression(
+            "float(0.3037 * b('B2') + 0.2793 * b('B3') + 0.4743 * b('B4')  + 0.5585 * b('B8') + 0.5082 * b('B11') +  0.1863 * b('B12'))")\
+                .rename(['brightness']) 
+        
+        return img.addBands(tasselledCapImg)
+    
+    # Tasselled Cap - wetness 
+    def agregateBandsIndexwetness(self, img):
+    
+        tasselledCapImg = img.expression(
+            "float(0.1509 * b('B2') + 0.1973 * b('B3') + 0.3279 * b('B4')  + 0.3406 * b('B8') + 0.7112 * b('B11') +  0.4572 * b('B12'))")\
+                .rename(['wetness']) 
+        
+        return img.addBands(tasselledCapImg)
+    
+    # Moisture Stress Index (MSI)
+    def agregateBandsIndexMSI(self, img):
+    
+        msiImg = img.expression(
+            "float( b('B8') / b('B11'))")\
+                .rename(['msi']) 
+        
+        return img.addBands(msiImg)
+    
+    def agregateBandsIndexGCVI(self, img):
+    
+        gcviImgA = img.expression(
+            "float(b('B8')) / (b('B3')) - 1").rename(['gcvi'])        
+        
+        return img.addBands(gcviImgA)
+
+    def agregateBandsIndexOSAVI(self, img):
+    
+        osaviImg = img.expression(
+            "float(b('B8') - b('B4')) / (0.16 + b('B8') + b('B4'))").rename(['osavi'])        
+        
+        return img.addBands(osaviImg)
+
+    
+    def agregateBandsIndexSoil(self, img):
+        
+        soilImg = img.expression(
+            "float(b('B8') - b('B3')) / (b('B8') + b('B3'))").rename(['soil'])       
+        
+        return img.addBands(soilImg)    
+
+    
+    def agregateBandsIndexEVI(self, img):
+            
+        eviImg = img.expression(
+            "float(2.4 * (b('B8') - b('B4')) / (1 + b('B8') + b('B4')))").rename(['evi'])     
+        
+        return img.addBands(eviImg)
+
     
     def agregateBandsTexturasGLCM(self, img):
         
@@ -354,6 +458,7 @@ def exportarClassification(imgTransf, nameAl, geomet):
 ## https://code.earthengine.google.com/4aa004aae390f0c4dc5708ece511796b
 ## https://code.earthengine.google.com/f308b42668bed2d6917a03ad362fd1e8
 params = {
+    "max16bit": 65536,
     "ccobert": 60,
     "start": None,
     "end": None,   
