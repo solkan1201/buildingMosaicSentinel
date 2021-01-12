@@ -585,7 +585,9 @@ params = {
         # '45': 'ellen'        
     },
 }
-
+var bandasInd = ['evi','gcvi','osavi','soil','msi','wetness','brightness',
+                 'nbr','cvi','lai',"iia","awei",'ndwi','ndvi','rvi','ratio',
+                 'gvmi','spri','co2flux','contrast']
 lsIndMin = []
 lsIndMax = []
 

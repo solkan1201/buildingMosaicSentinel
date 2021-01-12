@@ -29,7 +29,7 @@ dictStd_IndBND = {
                 'blue','green','red','nir','swir1','swir2', 
                 'evi2','ndvi','ndwi', 'savi', 'gcvi',"awei","iia",
                 'gvmi','spri','co2flux','gv','soil','msi','wetness',
-                'brightness','cvi','lai','rvi','ratio'
+                'brightness','cvi','lai','rvi','ratio','contrast',
                 'npv', 'soil', 'ndfi','ndfia'                
     ],
     'stdDev':[
