@@ -26,10 +26,11 @@ class ClassCalcIndicesSpectral(object):
     bndInd = []  
     options = {        
         "bandas": ['B2','B3', 'B4', 'B8', 'B11', 'B12'],        
-        # "Feature" :['ndwi', 'osavi', 'lai', 'soil', 'evi','gv','ndfia'], 
         "Feature" :['osavi','ndwi','ndvi','lai', 'soil',  'gcvi', 'npv', 'ndfia'], 
-        'bandsFraction': ['gv','npv','soil','cloud', 'shade'] 
-        # "pmtRF" : {'numberOfTrees': 50, 'variablesPerSplit': 3,  'seed': 2}
+        'bandsFraction': ['gv','npv','soil','cloud', 'shade'], 
+        'scale': 300,
+        'toaOrSR' : 'SR',
+        'degree2radian' : 0.01745
     }  
 
     dictClassifRef = {}
@@ -58,6 +59,8 @@ class ClassCalcIndicesSpectral(object):
 
         # salvando em um diccionario as propiedades dde Classify da ref
         self.equalizeRef(geomRef)
+
+        self.dem = ee.Image("USGS/SRTMGL1_003")
         
     
     def updateParametros(self, uImg, mMapBiomas, geomet):
@@ -188,17 +191,85 @@ class ClassCalcIndicesSpectral(object):
 
         return matching
     
+
+    ######################################################################################
+    ## // Function to calculate illumination condition (IC). Function by Patrick Burns ###
+    ## // (pb463@nau.edu) and Matt Macander                                            ###
+    ## // (mmacander@abrinc.com)                                                       ###
+    ######################################################################################
+    def illuminationCondition(img):
+
+        geom = img.geometry().buffer(10000)
+        ### Extract image metadata about solar position  ##
+        SZ_rad = ee.Image.constant(ee.Number(img.get('MEAN_SOLAR_ZENITH_ANGLE'))
+                            ).multiply(3.14159265359).divide(180).clip(geom) 
+        SA_rad = ee.Image.constant(ee.Number(img.get('MEAN_SOLAR_AZIMUTH_ANGLE'))
+                            ).multiply(3.14159265359).divide(180).clip(geom)
+        
+        ####  Creat terrain layers ### 
+        slp = ee.Terrain.slope(dem).clip(geom)
+        slp_rad = ee.Terrain.slope(self.dem).multiply(3.14159265359).divide(180).clip(geom)
+        asp_rad = ee.Terrain.aspect(dem).multiply(3.14159265359).divide(180).clip(geom)
+
+        ###  Calculate the Illumination Condition (IC) ####
+        ###  slope part of the illumination condition  ####
+        cosZ = SZ_rad.cos().rename('cosZ')
+        cosS = slp_rad.cos().rename('cosS')        
+        slope_illumination = cosS.addBands(cosZ).expression(
+                                              "float(b('cosZ') * b('cosS'))")
+
+        sinZ = SZ_rad.sin().rename('sinZ')
+        sinS = slp_rad.sin()
+        cosAziDiff = (SA_rad.subtract(asp_rad)).cos().rename("cosAziDiff")
+        aspect_illumination = sinZ.addBands(sinS).addBands(cosAziDiff).expression(
+                                        "float(b('sinZ') * b('slope') * b('cosAziDiff'))") 
+        
+        ### full illumination condition (IC) ###
+        ic = slope_illumination.add(aspect_illumination)
+
+        ### Add IC to original image ###
+        img_plus_ic = ee.Image(img.addBands(ic).addBands(cosZ).addBands(cosS)
+                                  ).addBands(slp.rename('slope'))
+        
+        return img_plus_ic
+
+
+
+    # https://code.earthengine.google.com/c20fe3602e4a99107b999d95e57752d9
+    def illuminationCorrection(img):
+
+        props = img.toDictionary()
+        st = img.get('system:time_start')
+
+        img_plus_ic = img
+        mask1 = img_plus_ic.select('nir').gt(-0.1)
+        mask2 = img_plus_ic.select('slope').gte(5).and(
+                            img_plus_ic.select('IC').gte(0)).and(
+                            img_plus_ic.select('nir').gt(-0.1))
+        
+
+        img_plus_ic_mask2 = ee.Image(img_plus_ic.updateMask(mask2))
+
+        ### Specify Bands to topographically correct ###
+        bandList = ['blue','green','red','nir','swir1','swir2']
+        compositeBands = img.bandNames()
+        nonCorrectBands = img.select(compositeBands.removeAll(bandList))
+
+        geom = ee.Geometry(img.get('system:footprint')).bounds().buffer(10000)
+
+
+
     def agregateBandsIndexRATIO(self, img):
     
         ratioImg = img.expression("float(b('B8') / b('B4'))")\
-                                .rename(['ratio'])      
+                                .multiply(1000).rename(['ratio'])      
 
         return img.addBands(ratioImg)
 
     def agregateBandsIndexRVI(self, img):
     
         rviImg = img.expression("float(b('B4') / b('B8'))")\
-                                .rename(['rvi'])       
+                                .multiply(1000).rename(['rvi'])       
 
         return img.addBands(rviImg)
 
@@ -206,7 +277,7 @@ class ClassCalcIndicesSpectral(object):
     def agregateBandsIndexNDVI(self, img):
     
         ndviImg = img.expression("float(b('B8') - b('B12')) / (b('B8') + b('B12'))")\
-            .rename(['ndvi'])       
+                                .add(1).multiply(10000).rename(['ndvi'])       
 
         return img.addBands(ndviImg)
 
@@ -214,7 +285,7 @@ class ClassCalcIndicesSpectral(object):
     def agregateBandsIndexWater(self, img):
     
         ndwiImg = img.expression("float(b('B8') - b('B12')) / (b('B8') + b('B12'))")\
-            .rename(['ndwi'])       
+                                .add(1).multiply(10000).rename(['ndwi'])       
 
         return img.addBands(ndwiImg)
     
@@ -223,25 +294,25 @@ class ClassCalcIndicesSpectral(object):
     
         awei = img.expression(
                             "float(4 * (b('green') - b('swir2')) - (0.25 * b('nir') + 2.75 * b('swir1')))"
-                        ).rename("awei")          
+                        ).add(5).multiply(10000).rename("awei")          
         
         return img.addBands(awei)
 
 
     def IndiceIndicadorAgua(img):
     
-        awei = img.expression(
-                "float((b('green') - 4 *  b('nir')) / (b('green') + 4 *  b('nir')))"
-        ).rename("iia")
+        iiaImg = img.expression(
+                            "float((b('green') - 4 *  b('nir')) / (b('green') + 4 *  b('nir')))"
+                        ).add(1).multiply(10000).rename("iia")
         
-        return img.addBands(awei)
+        return img.addBands(iiaImg)
 
 
     def agregateBandsIndexEVI(self, img):
             
         eviImg = img.expression(
-            "float(2.4 * (b('B8') - b('B4')) / (1 + b('B8') + b('B4')))")\
-                .rename(['evi'])     
+            "float(2.4 * (b('B8') - b('B4')) / (1 + b('B8') + b('B4')))").divide(10)\
+                .add(1).multiply(10000).rename(['evi'])     
         
         return img.addBands(eviImg)
     
@@ -249,25 +320,27 @@ class ClassCalcIndicesSpectral(object):
     def agregateBandsIndexLAI(self, img):
     
         laiImg = img.expression(
-            "(3.618 * float(b('evi') - 0.118))")\
-                .rename(['lai'])     
+            "(3.618 * float(b('evi') - 0.118))").divide(10)\
+                .add(1).multiply(1000).rename(['lai'])     
     
         return img.addBands(laiImg)
     
+
     def agregateBandsIndexGCVI(self, img):
     
         gcviImgA = img.expression(
-            "float(b('B8')) / (b('B3')) - 1").divide(10)\
-                .rename(['gcvi'])        
+            "float(b('B8')) / (b('B3')) - 1")\
+                .add(1).multiply(10000).rename(['gcvi'])        
         
         return img.addBands(gcviImgA)
     
+
     # Chlorophyll vegetation index
     def agregateBandsIndexCVI(self, img):
     
         cviImgA = img.expression(
-            "float(b('B8') * (b('B3') / (b('B2') * b('B2'))))")\
-                .rename(['cvi'])        
+            "float(b('B8') * (b('B3') / (b('B2') * b('B2'))))").divide(10)\
+                .add(1).multiply(10000).rename(['cvi'])        
         
         return img.addBands(cviImgA)
     
@@ -276,7 +349,7 @@ class ClassCalcIndicesSpectral(object):
     
         osaviImg = img.expression(
             "float(b('B8') - b('B4')) / (0.16 + b('B8') + b('B4'))")\
-                .rename(['osavi'])        
+                .add(1).multiply(10000).rename(['osavi'])        
         
         return img.addBands(osaviImg)
     
@@ -285,7 +358,7 @@ class ClassCalcIndicesSpectral(object):
         
         soilImg = img.expression(
             "float(b('B8') - b('B3')) / (b('B8') + b('B3'))")\
-                .rename(['soil'])       
+                .add(1).multiply(10000).rename(['isoil'])       
         
         return img.addBands(soilImg)    
 
@@ -312,7 +385,7 @@ class ClassCalcIndicesSpectral(object):
     
         tasselledCapImg = img.expression(
             "float(0.3037 * b('B2') + 0.2793 * b('B3') + 0.4743 * b('B4')  + 0.5585 * b('B8') + 0.5082 * b('B11') +  0.1863 * b('B12'))")\
-                .rename(['brightness']) 
+                .multiply(10000).rename(['brightness']) 
         
         return img.addBands(tasselledCapImg)
     
@@ -321,7 +394,7 @@ class ClassCalcIndicesSpectral(object):
     
         tasselledCapImg = img.expression(
             "float(0.1509 * b('B2') + 0.1973 * b('B3') + 0.3279 * b('B4')  + 0.3406 * b('B8') + 0.7112 * b('B11') +  0.4572 * b('B12'))")\
-                .rename(['wetness']) 
+                .multiply(10000).rename(['wetness']) 
         
         return img.addBands(tasselledCapImg)
     
@@ -329,55 +402,50 @@ class ClassCalcIndicesSpectral(object):
     def agregateBandsIndexMSI(self, img):
     
         msiImg = img.expression(
-            "float( b('B8') / b('B11'))")\
+            "float( b('B8') / b('B11'))").multiply(1000)\
                 .rename(['msi']) 
         
         return img.addBands(msiImg)
     
-    def agregateBandsIndexGCVI(self, img):
     
-        gcviImgA = img.expression(
-            "float(b('B8')) / (b('B3')) - 1").rename(['gcvi'])        
+    def agregateBandsIndexGVMI(self, img):
         
-        return img.addBands(gcviImgA)
+        gvmiImg = img.expression(
+                        "float ((b('B8')  + 0.1) - (b('B11') + 0.02)) / ((b('B8') + 0.1) + (b('B11') + 0.02))" 
+                    ).add(1).multiply(10000).rename(['gvmi'])     
+    
+        return img.addBands(gvmiImg)
+    
+    
+    def agregateBandsIndexsPRI(self, img):
+        
+        priImg = img.expression(
+                                "float((b('B3') - b('B2')) / (b('B3') + b('B2')))"
+                            ).rename(['pri'])   
+        spriImg =   priImg.expression(
+                                "float((b('pri') + 1) / 2)").multiply(10000).rename(['spri'])  
+    
+        return img.addBands(spriImg)
+    
 
-    def agregateBandsIndexOSAVI(self, img):
-    
-        osaviImg = img.expression(
-            "float(b('B8') - b('B4')) / (0.16 + b('B8') + b('B4'))").rename(['osavi'])        
+    def agregateBandsIndexCO2Flux(self, img):
         
-        return img.addBands(osaviImg)
+        co2FluxImg = img.expression("float(b('ndvi') * b('spri'))"
+                                ).add(2).multiply(10000).rename(['co2flux'])   
+        
+        return img.addBands(co2FluxImg)
 
-    
-    def agregateBandsIndexSoil(self, img):
-        
-        soilImg = img.expression(
-            "float(b('B8') - b('B3')) / (b('B8') + b('B3'))").rename(['soil'])       
-        
-        return img.addBands(soilImg)    
 
-    
-    def agregateBandsIndexEVI(self, img):
-            
-        eviImg = img.expression(
-            "float(2.4 * (b('B8') - b('B4')) / (1 + b('B8') + b('B4')))").rename(['evi'])     
-        
-        return img.addBands(eviImg)
 
-    
     def agregateBandsTexturasGLCM(self, img):
         
-        img = img.toInt()
-                
-        textura2 = img.select('B8').glcmTexture(3)        
+        img = img.toInt()                
+        textura2 = img.select('B8').glcmTexture(3)  
+        contrast = textura2.select('B8_contrast').divide(1000).rename('contrast') 
 
-        entropia = textura2.select('B8_ent').divide(10000).rename('ent')            
-        variancia = textura2.select('B8_var').divide(10000).rename('var')
-
-        img = img.addBands(entropia).addBands(variancia)
+        return  contrast
         
-        return  img.select(['ent','var'])
-        
+    
     def agregateBandsgetFractions(self, img):
 
         # Define endmembers
@@ -388,49 +456,66 @@ class ClassCalcIndicesSpectral(object):
             [4031.0, 8714.0, 7900.0, 8989.0, 7002.0, 6607.0], #/*cloud*/
             [   0.0,    0.0,    0.0,    0.0,    0.0,    0.0]  #/*Shade*/
         ]
-
         # Uminxing data
         fractions = ee.Image(img).select(self.options['bandas'])\
                         .unmix(endmembers= endmembers).float()
         
         fractions = fractions.select([0,1,2,3,4], self.options['bandsFraction'])        
+        
         return img.addBands(fractions)
 
 
     def agregateBandsIndexNDFIA(self, img):
 
-        #calculate NDFI
-        ndfia = img.expression(
-            "float(b('gv') - b('soil')) / float( b('gv') + 2 * b('npv') + b('soil'))")
+        # #calculate NDFI
+        # ndfi = img.expression(
+        #     "float(b('gv') - (b('npv') + b('soil'))) / float( b('gv') + b('npv') + b('soil'))")        
+        # ndfi = ndfi.rename('ndfi')        
         
+        #calculate NDFIa
+        ndfia = img.expression(
+            "float(b('gv') - b('soil')) / float( b('gv') + 2 * b('npv') + b('soil'))")        
         ndfia = ndfia.rename('ndfia')
         
-        return img.select(['npv']).addBands(ndfia) # 'gv',
+        return img.select(['gv','npv','soil']).addBands(ndfi).addBands(ndfia) 
 
+    
     def CalculateIndice(self, imageW):         
         
         geomet = imageW.geometry()
         # imagem em Int16 com valores inteiros ate 10000        
         imageF = self.agregateBandsgetFractions(imageW)
         imageF = self.agregateBandsIndexNDFIA(imageF)
-        # imageT = self.agregateBandsTexturasGLCM(imageW)
+        imageT = self.agregateBandsTexturasGLCM(imageW)        
+
         imageW = imageW.divide(10000)
         imageW = imageW.set('system:footprint', geomet)
 
         imageW = self.agregateBandsIndexEVI(imageW)         
-        imageW = self.agregateBandsIndexWater(imageW) 
-        imageW = self.agregateBandsIndexNDVI(imageW)               
+        imageW = self.agregateBandsIndexRATIO(imageW) 
+        imageW = self.agregateBandsIndexRVI(imageW)               
+        imageW = self.agregateBandsIndexNDVI(imageW)
+        imageW = self.agregateBandsIndexWater(imageW)
+        imageW = self.AutomatedWaterExtractionIndex(imageW)        
+        imageW = self.IndiceIndicadorAgua(imageW)
+        imageW = self.agregateBandsIndexLAI(imageW) 
+        imageW = self.agregateBandsIndexGCVI(imageW) 
+        imageW = self.agregateBandsIndexCVI(imageW)               
         imageW = self.agregateBandsIndexOSAVI(imageW)
-        imageW = self.agregateBandsIndexGCVI(imageW)
-        imageW = self.agregateBandsIndexSoil(imageW)        
-        imageW = self.agregateBandsIndexLAI(imageW)
+        imageW = self.agregateBandsIndexSoil(imageW) 
+        imageW = self.agregateBandsIndexMSI(imageW)
+        imageW = self.agregateBandsIndexwetness(imageW)         
+        imageW = self.agregateBandsIndexBrightness(imageW) 
+
+        imageW = self.agregateBandsIndexGVMI(imageW)
+        imageW = self.agregateBandsIndexsPRI(imageW)         
+        imageW = self.agregateBandsIndexCO2Flux(imageW)
         
-        return imageW.addBands(imageF)
+        
+        return imageW.addBands(imageF).addBands(imageT)
 
 
 def exportarClassification(imgTransf, nameAl, geomet):
-    
-    #noReg = 2
     
     # IdAsset = 'projects/mapbiomas-arida/ALERTAS/alertas-brutos/creados/' + nameAl    
     IdAsset = 'projects/mapbiomas-arida/ALERTAS/alertas-brutos/gerados/' + nameAl
@@ -453,7 +538,8 @@ def exportarClassification(imgTransf, nameAl, geomet):
 
     for keys, vals in dict(task.status()).items():
         print ( "  {} : {}".format(keys, vals))
-    print ("salvando ... !")
+    
+    print ("salvando ... ! ")
 
 ## https://code.earthengine.google.com/4aa004aae390f0c4dc5708ece511796b
 ## https://code.earthengine.google.com/f308b42668bed2d6917a03ad362fd1e8

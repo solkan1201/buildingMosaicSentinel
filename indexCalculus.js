@@ -149,7 +149,7 @@ var agregateBandsIndexEVI = function(img){
 var agregateBandsIndexGVMI = function(img){
         
     var gvmiImg = img.expression(
-        "float ((b('B8')  + 0.1) -(b('B11') + 0.02)) / ((b('B8') + 0.1) + (b('B11') + 0.02))")  //
+        "float ((b('B8')  + 0.1) -(b('B11') + 0.02)) / ((b('B8') + 0.1) + (b('B11') + 0.02))") 
             .rename(['gvmi'])     
     
     return img.addBands(gvmiImg)
@@ -188,8 +188,7 @@ var agregateBandsIndexCO2Flux = function(img){
 //https://code.earthengine.google.com/e073ae3b060131cfd3b2278bbdda068c
 
 var bandasInd = ['evi','gcvi','osavi','soil','msi','wetness','brightness',
-                 'nbr','cvi','lai',"iia","awei",'ndwi','ndvi','rvi',
-                 'ratio']
+                 'nbr','cvi','lai',"iia","awei",'ndwi','ndvi','rvi','ratio']
 
 var lsIdImg = [
     '20200809T131249_20200809T131246_T23MQP',
