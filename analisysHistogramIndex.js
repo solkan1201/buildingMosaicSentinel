@@ -48,6 +48,9 @@
   img = agregateBandsIndexNDVI(img)
   img = BandsIndexNDVI(img)
   
+  file:///home/superusuario/Downloads/remotesensing-11-00632.pdf
+  /// https://code.earthengine.google.com/3a121cbd7a98d811b4b8c5638cf356bb  //
+  ///  https://code.earthengine.google.com/289b9a794016ff658bea9ce3e920e6e3 //
   var visImg = {
     bands: ["B4","B3","B2"],
     gamma: 1,
