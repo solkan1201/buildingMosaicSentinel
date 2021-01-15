@@ -61,8 +61,8 @@ lsTilesCaat = [
 # }
 
 dictArqReg = {
-    # '95': ['24MVS', '24LUL'],   #, '24MXU'
-    # '52': ['24LXR', '24MXU'],
+    '95': ['24MVS', '24LUL', '24MXU'],   #, 
+    '52': ['24LXR', '24MXU'],
     '38': ['23LNJ']
 }
 
