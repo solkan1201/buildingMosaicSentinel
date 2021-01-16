@@ -55,7 +55,7 @@ class ClassCalcIndicesSpectral(object):
 
         self.imgRef_  = self.imgRef_.select(self.options['bandas'])              
     
-        self.imgRef_  = self.strecht_Images(self.imgRef_, geomRef)
+        # self.imgRef_  = self.strecht_Images(self.imgRef_, geomRef)
 
         # salvando em um diccionario as propiedades dde Classify da ref
         self.equalizeRef(geomRef)
@@ -168,15 +168,15 @@ class ClassCalcIndicesSpectral(object):
     def match_Images(self, image):    
 
         image = self.maskS2clouds(image)
-        image = self.strecht_Images(image, self.geomet)
+        # image = self.strecht_Images(image, self.geomet)
 
-        matching = ee.Image().int16()    
+        matching = ee.Image().uint16()    
         
         for band in self.options['bandas']:
 
             imgTemp = self.equalize(image.clip(self.geomet), band, self.geomet)
             
-            imgTemp = imgTemp.toInt().clip(self.geomet)
+            imgTemp = imgTemp.toUint16()#.clip(self.geomet)
 
             matching = matching.addBands(imgTemp)
 
@@ -516,7 +516,7 @@ class ClassCalcIndicesSpectral(object):
         #calculate NDFIa
         ndfia = img.expression(
             "float(b('gv') - b('soil')) / float( b('gv') + 2 * b('npv') + b('soil'))")        
-        ndfia = ndfia.rename('ndfia')
+        ndfia = ndfia.add(1).rename('ndfia')
         
         return img.select(['gv','npv','soil']).addBands(ndfia) #.addBands(ndfi)
 
@@ -534,11 +534,16 @@ class ClassCalcIndicesSpectral(object):
         if indice in ['gv', 'npv', 'soil', 'ndfia']:
             # imagem em Int16 com valores inteiros ate 10000        
             imageF = self.agregateBandsgetFractions(imageW)
-        elif  indice == 'ndfia':
-            imageF = self.agregateBandsIndexNDFIA(imageF)
-            # capturando textura  
+            if  indice == 'ndfia':
+                imageF = self.agregateBandsIndexNDFIA(imageF)
+            
+            return imageF.multiply(10000).select(indice)
+        
+        # capturando textura  
         elif  indice == 'contrast':
-            imageT = self.agregateBandsTexturasGLCM(imageW)        
+            imageT = self.agregateBandsTexturasGLCM(imageW)    
+
+            return imageT.select(indice)      
 
         imageW = imageW.divide(10000)
         imageW = imageW.set('system:footprint', self.geomet)
@@ -705,10 +710,7 @@ else:
 gradeS2 = ee.FeatureCollection(params['gradeS2Corr'])
 gradeDiv = ee.FeatureCollection(params['gradeS2Div'])
 
-datasetSent2 = ee.ImageCollection('COPERNICUS/S2_SR')\
-    .filterDate(params['start'], params['end'])\
-    .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert']))\
-    .select(params["bandasAll"])
+# datasetSent2 = 
 
 datasetCloudS2 = ee.ImageCollection('COPERNICUS/S2_CLOUD_PROBABILITY')\
     .filterDate(params['start'], params['end'])
@@ -732,13 +734,14 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                                             ee.Filter.eq('MGRS_TILE', tile),
                                             ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))
                                         )).geometry() 
-        
-        
-        
-        newDataset = datasetSent2.filter(ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo)))\
-                                .filter(ee.Filter.eq('MGRS_TILE', tile))\
-                                .sort('CLOUDY_PIXEL_PERCENTAGE').limit(limiteImg)
-        
+
+        newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
+                        params['start'], params['end']).filter(
+                                ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
+                                    ee.Filter.eq('MGRS_TILE', tile)).filter(
+                                        ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).sort(
+                                            'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
+
         for lado in ['A', 'B']:
 
             geometDiv = gradeDiv.filter(ee.Filter.eq('label', tile + '_' + lado)).geometry()
@@ -760,7 +763,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                 # print(newDataset.first().bandNames().getInfo())
                 ## Clac
 
-                for cc, bnd_indece in enumerate(lsBND_ind[:9]):
+                for cc, bnd_indece in enumerate(lsBND_ind[:10]):
 
                     print("processando a banda " + bnd_indece)
                     
@@ -782,7 +785,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                     imgAnalitic = newDatasetInd.median().toUint16()
                     imgAnalitic = imgAnalitic.clip(gradeInter)
 
-                    print("bandas seleccionadas {}".format(imgAnalitic.bandNames().getInfo()))
+                    # print("bandas seleccionadas {}".format(imgAnalitic.bandNames().getInfo()))
 
                     imgAnalitic = imgAnalitic.rename(bndMedian)
                     # print(imgAnalitic.bandNames().getInfo())

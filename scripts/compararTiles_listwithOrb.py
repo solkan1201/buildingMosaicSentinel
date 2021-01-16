@@ -61,9 +61,9 @@ lsTilesCaat = [
 # }
 
 dictArqReg = {
-    '95': ['24MVS', '24LUL', '24MXU'],   #, 
+    # '95': ['24MVS', '24LUL', '24MXU'],   #, 
     '52': ['24LXR', '24MXU'],
-    '38': ['23LNJ']
+    # '38': ['23LNJ']
 }
 
 imgRefCaat = 'COPERNICUS/S2_SR/20200809T131249_20200809T131246_T23MQP'

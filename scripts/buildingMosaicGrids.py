@@ -26,10 +26,7 @@ class ClassCalcIndicesSpectral(object):
     bndInd = []  
     options = {        
         "bandas": ['B2','B3', 'B4', 'B8', 'B11', 'B12'],        
-        "Feature" :['evi', 'ratio', 'rvi', 'ndvi', 'ndwi', 'awei', 'iia', 
-                    'lai', 'gcvi', 'cvi', 'osavi', 'isoil', 'msi', 'wetness', 
-                    'brightness', 'gvmi', 'spri', 'co2flux', 'gv', 'npv', 
-                    'soil', 'ndfia', 'contrast'], 
+        "Feature" :['osavi','ndwi','ndvi','lai', 'soil',  'gcvi', 'npv', 'ndfia'], 
         'bandsFraction': ['gv','npv','soil','cloud', 'shade'], 
         'scale': 300,
         'toaOrSR' : 'SR',
@@ -173,13 +170,13 @@ class ClassCalcIndicesSpectral(object):
         image = self.maskS2clouds(image)
         # image = self.strecht_Images(image, self.geomet)
 
-        matching = ee.Image().int16()    
+        matching = ee.Image().uint16()    
         
         for band in self.options['bandas']:
 
             imgTemp = self.equalize(image.clip(self.geomet), band, self.geomet)
             
-            imgTemp = imgTemp.toInt()#.clip(self.geomet)
+            imgTemp = imgTemp.toUint16()#.clip(self.geomet)
 
             matching = matching.addBands(imgTemp)
 
@@ -297,24 +294,27 @@ class ClassCalcIndicesSpectral(object):
         ratioImg = img.expression("float(b('B8') / b('B4'))")\
                                 .multiply(1000).rename(['ratio'])      
 
-        return img.addBands(ratioImg)
-
+        # return img.addBands(ratioImg)
+        return ratioImg
 
     def agregateBandsIndexRVI(self, img):
     
         rviImg = img.expression("float(b('B4') / b('B8'))")\
                                 .multiply(1000).rename(['rvi'])       
 
-        return img.addBands(rviImg)
+        # return img.addBands(rviImg)
+        return rviImg
 
-
+    
     def agregateBandsIndexNDVI(self, img):
     
         ndviImg = img.expression("float(b('B8') - b('B12')) / (b('B8') + b('B12'))")\
                                 .add(1).multiply(10000).rename(['ndvi'])       
 
-        return img.addBands(ndviImg)
+        # return img.addBands(ndviImg)
+        return ndviImg
 
+    
     def agregateBandsIndexWater(self, img):
     
         ndwiImg = img.expression("float(b('B8') - b('B12')) / (b('B8') + b('B12'))")\
@@ -329,13 +329,19 @@ class ClassCalcIndicesSpectral(object):
                             "float(4 * (b('B3') - b('B12')) - (0.25 * b('B8') + 2.75 * b('B11')))"
                         ).add(5).multiply(10000).rename("awei")          
         
-        return img.addBands(awei)
+        # return img.addBands(awei)
+        return awei
+
 
     def IndiceIndicadorAgua(self, img):
     
-        iiaImg = img.expression("float((b('B3') - 4 *  b('B8')) / (b('B3') + 4 *  b('B8')))"
+        iiaImg = img.expression(
+                            "float((b('B3') - 4 *  b('B8')) / (b('B3') + 4 *  b('B8')))"
                         ).add(1).multiply(10000).rename("iia")
-        return img.addBands(iiaImg)
+        
+        # return img.addBands(iiaImg)
+        return iiaImg
+
 
     def agregateBandsIndexEVI(self, img):
             
@@ -345,13 +351,16 @@ class ClassCalcIndicesSpectral(object):
         
         return img.addBands(eviImg)
     
+    
     def agregateBandsIndexLAI(self, img):
     
         laiImg = img.expression(
             "(3.618 * float(b('evi') - 0.118))").divide(10)\
                 .add(1).multiply(1000).rename(['lai'])     
     
-        return img.addBands(laiImg)
+        # return img.addBands(laiImg)
+        return laiImg
+    
 
     def agregateBandsIndexGCVI(self, img):
     
@@ -359,16 +368,20 @@ class ClassCalcIndicesSpectral(object):
             "float(b('B8')) / (b('B3')) - 1")\
                 .add(1).multiply(10000).rename(['gcvi'])        
         
-        return img.addBands(gcviImgA)
+        # return img.addBands(gcviImgA)
+        return gcviImgA
+    
 
     # Chlorophyll vegetation index
     def agregateBandsIndexCVI(self, img):
-        
+    
         cviImgA = img.expression(
             "float(b('B8') * (b('B3') / (b('B2') * b('B2'))))").multiply(100)\
                 .rename(['cvi'])        
         
-        return img.addBands(cviImgA)
+        # return img.addBands(cviImgA)
+        return cviImgA
+    
     
     def agregateBandsIndexOSAVI(self,img):
     
@@ -376,14 +389,18 @@ class ClassCalcIndicesSpectral(object):
             "float(b('B8') - b('B4')) / (0.16 + b('B8') + b('B4'))")\
                 .add(1).multiply(10000).rename(['osavi'])        
         
-        return img.addBands(osaviImg)
+        # return img.addBands(osaviImg)
+        return osaviImg
+    
     
     def agregateBandsIndexSoil(self, img):
+        
         soilImg = img.expression(
             "float(b('B8') - b('B3')) / (b('B8') + b('B3'))")\
                 .add(1).multiply(10000).rename(['isoil'])       
         
-        return img.addBands(soilImg)    
+        # return img.addBands(soilImg)    
+        return soilImg 
     
     def agregateBandsIndexBAI(self, img):
     
@@ -391,7 +408,8 @@ class ClassCalcIndicesSpectral(object):
             "float(1) / ((0.1 - b('B4'))**2 + (0.06 - b('B8'))**2)")\
                 .rename(['bai']) 
         
-        return img.addBands(baiImg)
+        # return img.addBands(baiImg)
+        return baiImg
     
     # Normalized Difference NIR/SWIR Normalized Burn Ratio 
     def agregateBandsIndexNBR(self, img):
@@ -409,8 +427,8 @@ class ClassCalcIndicesSpectral(object):
             "float(0.3037 * b('B2') + 0.2793 * b('B3') + 0.4743 * b('B4')  + 0.5585 * b('B8') + 0.5082 * b('B11') +  0.1863 * b('B12'))")\
                 .multiply(10000).rename(['brightness']) 
         
-        return img.addBands(tasselledCapImg)
-
+        # return img.addBands(tasselledCapImg)
+        return tasselledCapImg
     
     # Tasselled Cap - wetness 
     def agregateBandsIndexwetness(self, img):
@@ -419,8 +437,8 @@ class ClassCalcIndicesSpectral(object):
             "float(0.1509 * b('B2') + 0.1973 * b('B3') + 0.3279 * b('B4')  + 0.3406 * b('B8') + 0.7112 * b('B11') +  0.4572 * b('B12'))")\
                 .multiply(10000).rename(['wetness']) 
         
-        return img.addBands(tasselledCapImg)
-
+        # return img.addBands(tasselledCapImg)
+        return tasselledCapImg
     
     # Moisture Stress Index (MSI)
     def agregateBandsIndexMSI(self, img):
@@ -429,7 +447,8 @@ class ClassCalcIndicesSpectral(object):
             "float( b('B8') / b('B11'))").multiply(1000)\
                 .rename(['msi']) 
         
-        return img.addBands(msiImg)
+        # return img.addBands(msiImg)
+        return msiImg
     
     
     def agregateBandsIndexGVMI(self, img):
@@ -438,8 +457,9 @@ class ClassCalcIndicesSpectral(object):
                         "float ((b('B8')  + 0.1) - (b('B11') + 0.02)) / ((b('B8') + 0.1) + (b('B11') + 0.02))" 
                     ).add(1).multiply(10000).rename(['gvmi'])     
     
-        return img.addBands(gvmiImg)
-
+        # return img.addBands(gvmiImg)
+        return gvmiImg
+    
     
     def agregateBandsIndexsPRI(self, img):
         
@@ -449,8 +469,8 @@ class ClassCalcIndicesSpectral(object):
         spriImg =   priImg.expression(
                                 "float((b('pri') + 1) / 2)").multiply(10000).rename(['spri'])  
     
-        return img.addBands(spriImg)
-        # return spriImg
+        # return img.addBands(spriImg)
+        return spriImg
     
 
     def agregateBandsIndexCO2Flux(self, img):
@@ -458,7 +478,9 @@ class ClassCalcIndicesSpectral(object):
         co2FluxImg = img.expression("float(b('ndvi') * b('spri'))"
                                 ).add(2).multiply(10000).rename(['co2flux'])   
         
-        return img.addBands(co2FluxImg)
+        # return img.addBands(co2FluxImg)
+        return co2FluxImg
+
 
 
     def agregateBandsTexturasGLCM(self, img):
@@ -494,57 +516,84 @@ class ClassCalcIndicesSpectral(object):
         #calculate NDFIa
         ndfia = img.expression(
             "float(b('gv') - b('soil')) / float( b('gv') + 2 * b('npv') + b('soil'))")        
-        ndfia = ndfia.rename('ndfia')
+        ndfia = ndfia.add(1).rename('ndfia')
         
         return img.select(['gv','npv','soil']).addBands(ndfia) #.addBands(ndfi)
 
     
-    def CalculateIndice(self, imageW):         
+    def CalculateIndice(self, imageW, indice ):         
         
         # imageW = self.maskS2clouds(imageW)
+
         # imageW = self.strecht_Images(imageW, geomet)
         # imageW = imageW.set('system:footprint', geomet)
+
         # por causa do bucket  a imagem sai com [0, 10.000]
         # imageW = self.match_Images(imageW)        
         
-        # imagem em Int16 com valores inteiros ate 10000        
-        imageF = self.agregateBandsgetFractions(imageW)        
-        imageF = self.agregateBandsIndexNDFIA(imageF)
+        if indice in ['gv', 'npv', 'soil', 'ndfia']:
+            # imagem em Int16 com valores inteiros ate 10000        
+            imageF = self.agregateBandsgetFractions(imageW)
+            if  indice == 'ndfia':
+                imageF = self.agregateBandsIndexNDFIA(imageF)
+            
+            return imageF.multiply(10000).select(indice)
         
-        # capturando textura          
-        imageT = self.agregateBandsTexturasGLCM(imageW)        
+        # capturando textura  
+        elif  indice == 'contrast':
+            imageT = self.agregateBandsTexturasGLCM(imageW)    
 
-        imageWd = imageW.divide(10000)
-        imageWd = imageWd.set('system:footprint', self.geomet)        
-        
-        imageWd = self.agregateBandsIndexEVI(imageWd)         
-        imageWd = self.agregateBandsIndexRATIO(imageWd)        
-        imageWd = self.agregateBandsIndexRVI(imageWd)  
-        imageWd = self.agregateBandsIndexNDVI(imageWd)        
-        imageWd = self.agregateBandsIndexWater(imageWd)        
-        imageWd = self.AutomatedWaterExtractionIndex(imageWd)         
-        imageWd = self.IndiceIndicadorAgua(imageWd)              
-        imageWd = self.agregateBandsIndexLAI(imageWd)       
-        imageWd = self.agregateBandsIndexGCVI(imageWd)        
-        imageWd = self.agregateBandsIndexCVI(imageWd)               
-        imageWd = self.agregateBandsIndexOSAVI(imageWd)        
-        imageWd = self.agregateBandsIndexSoil(imageWd)        
-        imageWd = self.agregateBandsIndexMSI(imageWd)        
-        imageWd = self.agregateBandsIndexwetness(imageWd)            
-        imageWd = self.agregateBandsIndexBrightness(imageWd)         
-        imageWd = self.agregateBandsIndexGVMI(imageWd)        
-        imageWd = self.agregateBandsIndexsPRI(imageWd)          
-        imageWd = self.agregateBandsIndexCO2Flux(imageWd)    
+            return imageT.select(indice)
 
-        imageWd = imageWd.select(self.options['Feature'])    
+        imageW = imageW.divide(10000)
+        imageW = imageW.set('system:footprint', self.geomet)
         
-        return imageW.addBands(imageWd).addBands(imageF).addBands(imageT)
+        
+        if indice == 'evi':
+            imageW = self.agregateBandsIndexEVI(imageW)    
+        elif  indice == 'ratio':
+            imageW = self.agregateBandsIndexRATIO(imageW) 
+        elif  indice == 'rvi':
+            imageW = self.agregateBandsIndexRVI(imageW)  
+        elif  indice == 'ndvi':             
+            imageW = self.agregateBandsIndexNDVI(imageW)
+        elif  indice == 'ndwi':
+            imageW = self.agregateBandsIndexWater(imageW)
+        elif  indice == 'awei':
+            imageW = self.AutomatedWaterExtractionIndex(imageW)        
+        elif  indice == 'iia':
+            imageW = self.IndiceIndicadorAgua(imageW)
+        elif  indice == 'lai':
+            imageW = self.agregateBandsIndexEVI(imageW)
+            imageW = self.agregateBandsIndexLAI(imageW) 
+        elif  indice == 'gcvi':
+            imageW = self.agregateBandsIndexGCVI(imageW) 
+        elif  indice == 'cvi':
+            imageW = self.agregateBandsIndexCVI(imageW)               
+        elif  indice == 'osavi':
+            imageW = self.agregateBandsIndexOSAVI(imageW)
+        elif  indice == 'isoil':
+            imageW = self.agregateBandsIndexSoil(imageW) 
+        elif  indice == 'msi':
+            imageW = self.agregateBandsIndexMSI(imageW)
+        elif  indice == 'wetness':
+            imageW = self.agregateBandsIndexwetness(imageW)         
+        elif  indice == 'brightness':
+            imageW = self.agregateBandsIndexBrightness(imageW) 
+        elif  indice == 'gvmi':
+            imageW = self.agregateBandsIndexGVMI(imageW)
+        elif  indice == 'spri':
+            imageW = self.agregateBandsIndexsPRI(imageW)         
+        elif  indice == 'co2flux':
+            imageW = self.agregateBandsIndexCO2Flux(imageW)        
+        
+        return imageW #.addBands(imageF).addBands(imageT)
 
 
 def exportarClassification(imgTransf, nameAl, geomet):
     
-    IdAsset = 'projects/mapbiomas-workspace/AMOSTRAS/col5/CAATINGA/MOSAIC/mosaics/' + nameAl    
-    # IdAsset = 'users/mapbiomascaatinga05/mosaicSentinel2/' + nameAl
+    # IdAsset = 'projects/mapbiomas-workspace/AMOSTRAS/col5/CAATINGA/MOSAIC/mosaics/' + nameAl 
+    IdAsset = 'users/mapbiomascaatinga05/mosaicSentinel2/' + nameAl
     print(" en id Asset:")
     print("   <> {}".format(IdAsset))
     
@@ -574,19 +623,17 @@ def exportarClassification(imgTransf, nameAl, geomet):
 ####################################################################################
 params = {
     "max16bit": 65536,
-    "ccobert": 50,
+    "ccobert": 40,
     "start": None,
     "end": None,   
     "mes": None,
-    "ano": 2020,
+    "year": 2020,
     "bandasAll": ['B2','B3', 'B4', 'B8', 'B11', 'B12'],     
-    # "idassetOut": 'users/Tarefa01_MAPBIOMAS/teste_alerta_caatinga/ver1/', 
-    "idassetOut": 'projects/mapbiomas-workspace/AMOSTRAS/col5/CAATINGA/MOSAIC',
-    "gradeS2Corr": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeSent_IC_Caat',       
+    "idassetOut": 'users/Tarefa01_MAPBIOMAS/teste_alerta_caatinga/ver1/', 
+    "gradeS2Corr": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeSent_IC_Caat',  
+    "gradeS2Div": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeNordeC',    
     'pathHome': "/home/superusuario/Dados/projAlertas/tabFeitas/",
-    'path_TF': "/tabFeitas/",
-    'numeroTask': 0,
-    'numeroLimit': 85,
+    'path_TF': "/tabFeitas/",    
     'isCaatinga': True,
     'periodo': 'year',    # 'dry', 'wet'
     'imgRef': {
@@ -609,6 +656,13 @@ params = {
         # '45': 'ellen'        
     },
 }
+grades_Solape = [
+            '25LBL','25MBM','25MBN','25MBP','24KTG','24LTH','24LTJ','24LTK',
+            '24LTL','24LTM','24LTN','24LTP','24LTQ','24LTR','24MTA','24MTB',
+            '24MTS','24MTT','24MTU','24MTV','23KKB','23LKC','23LKD','23LKE',
+            '23LKF','23LKG','23LKH','23LKJ','23LKK','23LKL','23MKM','23MKN',
+            '23MKP','23MKQ','23MKR','23MKS','23MKT','23MKU'
+        ]
 bandasInd = [
             'blue', 'green', 'red', 'nir', 'swir1', 'siwr2', 
             'evi', 'ratio', 'rvi', 'ndvi', 'ndwi', 'awei', 'iia', 
@@ -631,10 +685,11 @@ lsIndMax = []
 #     lsTiles = auxiliar.lsTilesCaat
 # else:
 #     lsTiles = auxiliar.lsTilesBa
-# suf = ''
+
 imgRefCaat = params['imgRef']['year']
 
-
+suf = 'year'
+# 'ano',    # 'seco', 'chuvoso'
 if params['periodo'] == 'year': 
     params['start'] = '2020-01-01'
     params['end'] = '2020-12-31'
@@ -649,8 +704,10 @@ else:
     params['start'] = '2020-01-01'
     params['end'] = '2020-12-31'
     suf = 'wet'
+    
 
 gradeS2 = ee.FeatureCollection(params['gradeS2Corr'])
+gradeDiv = ee.FeatureCollection(params['gradeS2Div'])
 
 datasetSent2 = ee.ImageCollection('COPERNICUS/S2_SR')\
     .filterDate(params['start'], params['end'])\
@@ -666,91 +723,99 @@ operadorMosaic.imgColClouds = datasetCloudS2
 
 
 reducer = '_median'
-lsMedian = [ibnd + reducer for ibnd in bandasInd]
+# lsMedian = [ibnd + reducer for ibnd in bandasInd]
+limiteImg = 15
 
 for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
 
     for tile in lsTiles:  
+
+        print("Processando imagens de orbita  📡 {} >>  e tile 📡 {} >> ".format(orbNo, tile))
 
         geomet = gradeS2.filter(ee.Filter.And(
                                             ee.Filter.eq('MGRS_TILE', tile),
                                             ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))
                                         )).geometry() 
         
-        operadorMosaic.geomet = geomet        
+        
+        
         newDataset = datasetSent2.filter(ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo)))\
-                                .filter(ee.Filter.eq('MGRS_TILE', tile))
-        
-        
-        numImg = newDataset.size()#.getInfo()        
-        print("Processando imagens de orbita  📡 {} >>  e tile 📡 {} >> ".format(orbNo, tile))
-        # print(numImg)
-        # lsIndexImg = newDataset.reduceColumns(ee.Reducer.toList(), ['system:index']).get('list').getInfo()
+                                .filter(ee.Filter.eq('MGRS_TILE', tile))\
+                                .sort('CLOUDY_PIXEL_PERCENTAGE').limit(limiteImg)
 
-        # for nameId in lsIndexImg:
-        #     print(nameId) 
-
-        ##  remoção de Nuvens        
-        ##  matchiong histogram 
-        newDataset = newDataset.map(lambda image: operadorMosaic.match_Images(image))
-        # print("bandas ", newDataset.first().bandNames().getInfo())
-        # print(newDataset.filter(ee.Filter.eq(
-        #             "system:index", '20200111T125301_20200111T125302_T24LXR')).first().bandNames().getInfo())
+        newDatsetDiv = newDataset.map(lambda image: image.clip(geomet))
+        numImg = newDataset.size()#.getInfo()      
+        
+        operadorMosaic.geomet = geomet
+        
+        ## remoção de Nuvens        
+        #  matchiong histogram 
+        newDatsetDiv = newDatsetDiv.map(lambda image: operadorMosaic.match_Images(image))
+        # print(newDataset.first().bandNames().getInfo())
         ## Clac
-       
-        newDatasetInd = newDataset.map(lambda image: operadorMosaic.CalculateIndice(image))
-        # print("All bandas ", newDatasetInd.first().bandNames().getInfo())
-        ##########################################
-        ########  Reducers Median cc  ############ 
-        # print(bandasInd[cc])
-        # reducer = 'median_'         
-        # bndMedian =  reducer + bandasInd[cc]
-        
-        imgAnalitic = newDatasetInd.median().toUint16()        
-        imgAnalitic = imgAnalitic.select(lsBND_ind, lsMedian)
-        # print("bandas do mosaico ", imgAnalitic.bandNames().getInfo())
-        imgAnalitic = imgAnalitic.clip(geomet)
 
-        #print("bandas seleccionadas {}".format(imgAnalitic.bandNames().getInfo()))
+        for cc, bnd_indece in enumerate(lsBND_ind[:9]):
 
-        # imgAnalitic = imgAnalitic.rename(bndMedian)
-        # print(imgAnalitic.bandNames().getInfo())
+            print("processando a banda " + bnd_indece)
+            
+            if bnd_indece not in ['B2', 'B3', 'B4', 'B8', 'B11', 'B12']:
+                newDatasetInd = newDatsetDiv.map(lambda image: operadorMosaic.CalculateIndice(image, bnd_indece))
+                # print(newDatasetInd.first().getInfo())
+                newDatasetInd = newDatasetInd.select(bnd_indece) 
+            
+            else:
+                newDatasetInd = newDatsetDiv.select(bnd_indece)
+                # print(newDatasetInd.first().getInfo())                    
+            
+            ##########################################
+            ########  Reducers Median cc  ############ 
+            print(bandasInd[cc])
+            reducer = 'median_'         
+            bndMedian =  reducer + bandasInd[cc]
+            
+            imgAnalitic = newDatasetInd.median().toUint16()
+            imgAnalitic = imgAnalitic.clip(geomet)
 
-        ########################################
-        ####### Reducers Desvio Padrão   #######
-        # reducer = 'stdDev_'       
-        # lsstdDev = [reducer + ibnd for ibnd in bandasInd]
-        # std_imgAnalitic = newDatasetInd.reduce(
-        #                         reducer= ee.Reducer.stdDev(), 
-        #                         parallelScale= 2).toUint16()
+            print("bandas seleccionadas {}".format(imgAnalitic.bandNames().getInfo()))
 
-        # ## Reducers Minimum
-        # reducer = 'min_'
-        # for bnd in lsIndMin:
+            imgAnalitic = imgAnalitic.rename(bndMedian)
+            # print(imgAnalitic.bandNames().getInfo())
 
-        #     bandTemp = ee.Image(newDatasetInd.select(bnd).min()).rename(reducer + bnd)
-        #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
-        #     imgAnalitic = imgAnalitic.addBands(bandTemp)
-        
-        # ## Reducers Maximum
-        # reducer = 'max_'
-        # for bnd in lsIndMax:
+            ########################################
+            ####### Reducers Desvio Padrão   #######
+            # reducer = 'stdDev_'       
+            # lsstdDev = [reducer + ibnd for ibnd in bandasInd]
+            # std_imgAnalitic = newDatasetInd.reduce(
+            #                         reducer= ee.Reducer.stdDev(), 
+            #                         parallelScale= 2).toUint16()
 
-        #     bandTemp = ee.Image(newDatasetInd.select(bnd).max()).rename(reducer + bnd)
-        #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
-        #     imgAnalitic = imgAnalitic.addBands(bandTemp)
-        
-        # set properties
-        # imgAnalitic = imgAnalitic.addBands(std_imgAnalitic)
-        imgAnalitic = imgAnalitic.clip(geomet)
-        imgAnalitic = imgAnalitic.set('system:footprint', geomet)
-        imgAnalitic = imgAnalitic.set('year', params['ano'])
-        imgAnalitic = imgAnalitic.set('MGRS_TILE', tile)
-        imgAnalitic = imgAnalitic.set('SENSING_ORBIT_NUMBER', orbNo)
-        imgAnalitic = imgAnalitic.set('NUM_IMAGENS', numImg)
-        # imgAnalitic = imgAnalitic.set('banda', bndMedian)
-        imgAnalitic = imgAnalitic.set('periodo', params['periodo'])
+            # ## Reducers Minimum
+            # reducer = 'min_'
+            # for bnd in lsIndMin:
 
-        # save imagens 
-        nameAl = str(params['ano']) + '_' + str(orbNo)  + '_' + tile  + '_' + params['periodo']
-        exportarClassification(imgAnalitic, nameAl, geomet)
+            #     bandTemp = ee.Image(newDatasetInd.select(bnd).min()).rename(reducer + bnd)
+            #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
+            #     imgAnalitic = imgAnalitic.addBands(bandTemp)
+            
+            # ## Reducers Maximum
+            # reducer = 'max_'
+            # for bnd in lsIndMax:
+
+            #     bandTemp = ee.Image(newDatasetInd.select(bnd).max()).rename(reducer + bnd)
+            #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
+            #     imgAnalitic = imgAnalitic.addBands(bandTemp)
+            
+            # set properties
+            # imgAnalitic = imgAnalitic.addBands(std_imgAnalitic)
+            imgAnalitic = imgAnalitic.clip(geomet)
+            imgAnalitic = imgAnalitic.set('system:footprint', geomet)
+            imgAnalitic = imgAnalitic.set('year', params['year'])
+            imgAnalitic = imgAnalitic.set('MGRS_TILE', tile)
+            imgAnalitic = imgAnalitic.set('SENSING_ORBIT_NUMBER', orbNo)
+            imgAnalitic = imgAnalitic.set('NUM_IMAGENS', numImg)
+            imgAnalitic = imgAnalitic.set('banda', bndMedian)
+            imgAnalitic = imgAnalitic.set('periodo', params['periodo'])            
+
+            # save imagens 
+            nameAl = str(params['year']) + '_' + str(orbNo)  + '_' + tile + '_' + bndMedian + '_' + params['periodo']
+            exportarClassification(imgAnalitic, nameAl, geomet)
