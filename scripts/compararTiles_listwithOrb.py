@@ -19,12 +19,12 @@ lsTilesCaat = [
 ]
 
 
-# dictArqReg ={
+dictArqReg ={
     
-#     '9' : [
-#             '24LYR','24LZR','24MZS','24MZT','24MZU','24MZV','25LBL','25MBM',
-#             '25MBN','25MBP','24LYP','24LYQ','25MBQ'                
-#         ],
+    # '9' : [
+    #         '24LYR','24LZR','24MZS','24MZT','24MZU','24MZV','25LBL','25MBM',
+    #         '25MBN','25MBP','24LYP','24LYQ','25MBQ'                
+    #     ],
 #     '38' : [
 #             '23LNK','23LNL','23LPL','23MPM','23MPN','23MPP','23MQN','23MQP',
 #             '23MQQ','23MQR','23MQS','23LNJ','23LPJ','23LPK','23LMG','23LNF',
@@ -37,16 +37,16 @@ lsTilesCaat = [
 #             '24LVP','24LWM','24LWN','24LWQ','24LXN','24LXP','24LXQ','24LYP',
 #             '24LVM','24LWQ','24LVQ','25MBQ'
 #         ],
-#     '95' : [
-#             '23LRL','24LTR','24MTS','24MTT','24MUS','24MUT','24MUU','24MUV',
-#             '24MUA','24MUB','24MVA','24MVB','24MVS','24MVT','24MVU','24LTP',
-#             '24MVV','24MWA','24MWB','24MWS','24MWT','24MWU','24MWV','24MXA',
-#             '24MXT','24MXU','24MXV','23LQC','23LQD','23LQE','23LRE','23LRF',
-#             '23LRJ','24LTQ','24LWR','24LTN','24LUN','24LTQ','24LVQ','24LTM',
-#             '24LVR','24LUR','23LQF','23LRD','23LRG','23LRH','24LTJ','24LTN',
-#             '24LTK','24LTL','24LUM','24LUJ','24LUK','24LUL','24LVL','24LVM',
-#             '24LVN','24LWP','24LWQ','24LUP','24LVP','24LUQ','24MUC'      
-#         ],
+    '95' : [
+            # '23LRL','24LTR','24MTS','24MTT','24MUS','24MUT','24MUU','24MUV',
+            # '24MUA','24MUB','24MVA','24MVB','24MVS','24MVT','24MVU','24LTP',
+            '24MVV','24MWA','24MWB','24MWS','24MWT','24MWU','24MWV','24MXA',
+            # '24MXT','24MXU','24MXV','23LQC','23LQD','23LQE','23LRE','23LRF',
+            # '23LRJ','24LTQ','24LWR','24LTN','24LUN','24LTQ','24LVQ','24LTM',
+            # '24LVR','24LUR','23LQF','23LRD','23LRG','23LRH','24LTJ','24LTN',
+            # '24LTK','24LTL','24LUM','24LUJ','24LUK','24LUL','24LVL','24LVM',
+            # '24LVN','24LWP','24LWQ','24LUP','24LVP','24LUQ','24MUC'      
+        ],
 #     '138' : [
 #             '23LNK','23LPL','23LQL','23MQM','23MQN','23MPM','23MPP','23MRR',
 #             '23MQP','23MQQ','23MQR','23MQS','23MRM','23MRN','23MRP','23MRQ',
@@ -58,13 +58,13 @@ lsTilesCaat = [
 #             '24LTQ','23LPC','23LQC','23LQD','23LQE','23LQF','23LRE','23LRF',
 #             '23LRG','23KNB','23MRT','24MTC','24MUC'
 #         ]     
-# }
-
-dictArqReg = {
-    # '95': ['24MVS', '24LUL', '24MXU'],   #, 
-    '52': ['24LXR', '24MXU'],
-    # '38': ['23LNJ']
 }
+
+# dictArqReg = {
+#     '95': ['24MVS', '24LUL', '24MXU'],   #, 
+#     # '52': ['24LXR','24MXU'],  #
+#     # '38': ['23LNJ']
+# }
 
 imgRefCaat = 'COPERNICUS/S2_SR/20200809T131249_20200809T131246_T23MQP'
 

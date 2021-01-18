@@ -1,5 +1,6 @@
 #-*- coding utf-8 -*-
 import ee
+import gee
 import os
 import sys
 import random
@@ -256,7 +257,7 @@ class ClassCalcIndicesSpectral(object):
             pmtroRed = {
                 'reducer': ee.Reducer.linearRegression(2,1), 
                 'geometry': ee.Geometry(img.geometry()), 
-                'scale': scale, 
+                'scale': 10, 
                 'bestEffort': True,
                 'maxPixels': 1e10
             }
@@ -264,7 +265,7 @@ class ClassCalcIndicesSpectral(object):
             out =  ee.Image(1).addBands(img_plus_ic_mask2.select('IC', band))\
                             .reduceRegion(pmtroRed)
 
-            fit = out.combine({"coefficients": ee.Array([[1],[1]])}, false)
+            fit = out.combine({"coefficients": ee.Array([[1],[1]])}, False)
             
             out_a = (ee.Array(fit.get('coefficients')).get([0,0]))
             out_b = (ee.Array(fit.get('coefficients')).get([1,0]))
@@ -475,8 +476,15 @@ class ClassCalcIndicesSpectral(object):
 
     def agregateBandsIndexCO2Flux(self, img):
         
-        co2FluxImg = img.expression("float(b('ndvi') * b('spri'))"
-                                ).add(2).multiply(10000).rename(['co2flux'])   
+        ndviImg = img.expression("float(b('B8') - b('B12')) / (b('B8') + b('B12'))").rename(['ndvi']) 
+        
+        priImg = img.expression(
+                                "float((b('B3') - b('B2')) / (b('B3') + b('B2')))"
+                            ).rename(['pri'])   
+        spriImg =   priImg.expression(
+                                "float((b('pri') + 1) / 2)").rename(['spri'])
+
+        co2FluxImg = ndviImg.multiply(spriImg).add(2).multiply(10000).rename(['co2flux'])   
         
         # return img.addBands(co2FluxImg)
         return co2FluxImg
@@ -584,7 +592,7 @@ class ClassCalcIndicesSpectral(object):
             imageW = self.agregateBandsIndexGVMI(imageW)
         elif  indice == 'spri':
             imageW = self.agregateBandsIndexsPRI(imageW)         
-        elif  indice == 'co2flux':
+        elif  indice == 'co2flux':            
             imageW = self.agregateBandsIndexCO2Flux(imageW)
         
         
@@ -618,6 +626,8 @@ def exportarClassification(imgTransf, nameAl, geomet):
     print ("salvando ... ! ")
 
 
+
+
 ####################################################################################
 ### https://code.earthengine.google.com/4aa004aae390f0c4dc5708ece511796b        ####
 ### https://code.earthengine.google.com/f308b42668bed2d6917a03ad362fd1e8        ####
@@ -641,28 +651,61 @@ params = {
         'year': 'COPERNICUS/S2_SR/20200702T130251_20200702T130252_T24MVS',
         'dry': 'COPERNICUS/S2_SR/20200930T130251_20200930T130253_T24MVS'
     },
+    'numeroLimit': 64,
+    'numeroTask': 6,
     'conta' : {
-        '0': 'caatinga01',
+        '0':  'caatinga01',
         '10': 'caatinga02',
         '20': 'caatinga03',
         '24': 'caatinga04',
         '32': 'caatinga05',        
         '42': 'solkan1201',
         '54': 'diegoGmail',
-        '27': 'rodrigo',
-        '64': 'Rafael',
-        '75': 'Nerivaldo',
+        # '27': 'rodrigo',
+        # '64': 'Rafael',
+        # '75': 'Nerivaldo',
         #'39': 'solkanCengine',
         # '45': 'soltangalano',
-        # '45': 'ellen'        
+        # '88': 'ellen'        
     },
 }
+
+
+def gerenciador(cont):    
+    #=====================================
+    # gerenciador de contas para controlar 
+    # processos task no gee   
+    #=====================================
+    numberofChange = [kk for kk in params['conta'].keys()]
+    print(cont)
+    print(numberofChange)
+    if str(cont) in numberofChange:
+        
+        gee.switch_user(params['conta'][str(cont)])
+        gee.init()
+        #relatorios.write("Conta de: " + params['conta'][str(cont)] + '\n')
+
+        tarefas = gee.tasks(
+            n= params['numeroTask'],
+            return_list= True)
+        
+        # for lin in tarefas:            
+        #     relatorios.write(str(lin) + '\n')
+    
+    elif cont > params['numeroLimit']:
+        cont = 0
+    
+    cont += 1    
+    return cont
+
+
+
 grades_Solape = [
             '25LBL','25MBM','25MBN','25MBP','24KTG','24LTH','24LTJ','24LTK',
             '24LTL','24LTM','24LTN','24LTP','24LTQ','24LTR','24MTA','24MTB',
             '24MTS','24MTT','24MTU','24MTV','23KKB','23LKC','23LKD','23LKE',
             '23LKF','23LKG','23LKH','23LKJ','23LKK','23LKL','23MKM','23MKN',
-            '23MKP','23MKQ','23MKR','23MKS','23MKT','23MKU'
+            '23MKP','23MKQ','23MKR','23MKS','23MKT','23MKU'  #,'24MXU'
         ]
 bandasInd = [
             'blue', 'green', 'red', 'nir', 'swir1', 'siwr2', 
@@ -719,10 +762,10 @@ print('Imagem de referencia \n ====> ' + tiles_Orb.imgRefCaat)
 operadorMosaic = ClassCalcIndicesSpectral(tiles_Orb.imgRefCaat)
 operadorMosaic.imgColClouds = datasetCloudS2
 
-
+contador = 0
 reducer = '_median'
 # lsMedian = [ibnd + reducer for ibnd in bandasInd]
-limiteImg = 15
+limiteImg = 7
 
 for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
 
@@ -745,9 +788,9 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
         for lado in ['A', 'B']:
 
             geometDiv = gradeDiv.filter(ee.Filter.eq('label', tile + '_' + lado)).geometry()
-            gradeInter = geomet.intersection(geometDiv)
-
-            if tile in grades_Solape and lado == 'B':
+            gradeInter = geomet.intersection(geometDiv)            
+            areaInt = gradeInter.area(1).getInfo()
+            if tile in grades_Solape and lado == 'B' or areaInt < 1000:
                 continue
             
             else:
@@ -763,7 +806,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                 # print(newDataset.first().bandNames().getInfo())
                 ## Clac
 
-                for cc, bnd_indece in enumerate(lsBND_ind[:10]):
+                for cc, bnd_indece in enumerate(lsBND_ind):
 
                     print("processando a banda " + bnd_indece)
                     
@@ -829,3 +872,5 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                     # save imagens 
                     nameAl = str(params['ano']) + '_' + str(orbNo)  + '_' + tile + '_' + lado + '_' + bndMedian + '_' + params['periodo']
                     exportarClassification(imgAnalitic, nameAl, gradeInter)
+
+                    contador = gerenciador(contador)
