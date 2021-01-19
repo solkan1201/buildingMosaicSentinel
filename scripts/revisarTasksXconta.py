@@ -25,8 +25,8 @@ sys.setrecursionlimit(1000000000)
 relatorios = open("registros/relatorioTaskXContas.txt", 'a+')
 
 param = {
-    'unicaconta': True,
-    'numeroTask': 2080,
+    'unicaconta': False,    
+    'numeroTask': 30,
     'numeroLimit': 16,
     'conta' : {
         '0': 'caatinga01',
@@ -42,7 +42,7 @@ param = {
         '10': 'Nerivaldo',
         '11': 'diegoUEFS',
         # '12': 'simao',
-        '13': 'solatangalano',
+        '13': 'soltangalano',
         # '14': 'vinicius',
         # '15': 'bruna',
         '16': 'superconta'

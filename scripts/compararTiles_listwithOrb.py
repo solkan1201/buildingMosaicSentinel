@@ -48,15 +48,16 @@ dictArqReg ={
             # '24LVN','24LWP','24LWQ','24LUP','24LVP','24LUQ','24MUC'      
         # ],
     '138' : [
-            '23LNK','23LPL','23LQL','23MQM','23MQN','23MPM','23MPP','23MRR',
-#             '23MQP','23MQQ','23MQR','23MQS','23MRM','23MRN','23MRP','23MRQ',
-#             '24LTR','24MTS','24MUS','23MRS','24MTA','24MTB','24MTT','24MTU',
-#             '24MTV','24MUA','24MUB','24MUT','24MUU','24MUV','24MVB','23KPB',
-#             '23LMC','23LNC','23LND','23LNE','23LNF','23LNG','23LNH','23LNJ',
-#             '23LPD','23LPE','23LPF','23LPG','23LPH','23LPJ','23LPK','23LQG',
-#             '23LQH','23LQJ','23LQK','23LRH','23LRJ','23LRK','23LRL','24LTM',
-#             '24LTQ','23LPC','23LQC','23LQD','23LQE','23LQF','23LRE','23LRF',
-#             '23LRG','23KNB','23MRT','24MTC','24MUC'
+            # '23LNK','23LPL','23LQL','23MQM','23MQN','23MPM','23MPP','23MRR',
+            # '23MQP','23MQQ','23MQR','23MQS','23MRM','23MRN','23MRP','23MRQ',
+            # '24LTR','24MTS','24MUS','23MRS',
+            #   '24MTA','24MTB','24MTT','24MTU',
+            # '24MTV','24MUA','24MUB','24MUT','24MUU','24MUV','24MVB','23KPB',
+            # '23LMC','23LNC','23LND','23LNE','23LNF','23LNG','23LNH','23LNJ',
+            # '23LPD','23LPE','23LPF','23LPG','23LPH','23LPJ','23LPK','23LQG',
+            '23LQH','23LQJ','23LQK','23LRH','23LRJ','23LRK','23LRL','24LTM',
+            # '24LTQ','23LPC','23LQC','23LQD','23LQE','23LQF','23LRE','23LRF',
+            '23LRG','23KNB','23MRT','24MTC','24MUC'
         ]     
 }
 

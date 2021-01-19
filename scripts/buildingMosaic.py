@@ -640,7 +640,7 @@ params = {
     "mes": None,
     "ano": 2020,
     "bandasAll": ['B2','B3', 'B4', 'B8', 'B11', 'B12'],   
-    "assetLimCaat": 'users/CartasSol/shapes/nCaatingaBff3000',  
+    "assetLimBra": 'users/CartasSol/shapes/Brasil',  
     "idassetOut": 'users/Tarefa01_MAPBIOMAS/teste_alerta_caatinga/ver1/', 
     "gradeS2Corr": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeSent_IC_Caat',  
     "gradeS2Div": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeNordeC',    
@@ -652,17 +652,18 @@ params = {
         'year': 'COPERNICUS/S2_SR/20200702T130251_20200702T130252_T24MVS',
         'dry': 'COPERNICUS/S2_SR/20200930T130251_20200930T130253_T24MVS'
     },
-    'numeroLimit': 80,
+    'numeroLimit': 98,
     'numeroTask': 6,
     'conta' : {
-        '0':  'caatinga01',
-        '10': 'caatinga02',
-        '20': 'caatinga03',
-        '24': 'caatinga04',
+        # '0':  'caatinga01',
+        '0': 'caatinga02',
+        '16': 'caatinga03',
+        # '36': 'caatinga04',
         '32': 'caatinga05',        
-        '44': 'solkan1201',
-        '56': 'diegoGmail',
-        '68': 'rodrigo',
+        '50': 'solkan1201',
+        '64': 'diegoGmail',
+        '80': 'rodrigo',
+        '90': 'diegoUEFS',
         # '64': 'Rafael',
         # '75': 'Nerivaldo',
         #'39': 'solkanCengine',
@@ -673,10 +674,12 @@ params = {
 
 
 def gerenciador(cont):    
+    
     #=====================================
     # gerenciador de contas para controlar 
     # processos task no gee   
     #=====================================
+    
     numberofChange = [kk for kk in params['conta'].keys()]
     print(cont)
     print(numberofChange)
@@ -753,7 +756,7 @@ else:
 
 gradeS2 = ee.FeatureCollection(params['gradeS2Corr'])
 gradeDiv = ee.FeatureCollection(params['gradeS2Div'])
-limiteCaat = ee.FeatureCollection(params["assetLimCaat"])
+limiteCaat = ee.FeatureCollection(params["assetLimBra"]).filter(ee.Filter.eq('codiso3166', 'BRA'))
 
 # datasetSent2 = 
 
@@ -882,7 +885,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                         nameAl = str(params['ano']) + '_' + str(orbNo)  + '_' + tile + '_' + lado + '_' + bndMedian + '_' + params['periodo']
                         exportarClassification(imgAnalitic, nameAl, gradeInter)
 
-                        # contador = gerenciador(contador)
+                        contador = gerenciador(contador)
                 
                 except:
 
