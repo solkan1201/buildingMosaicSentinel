@@ -663,7 +663,7 @@ params = {
         '56': 'solkan1201',
         '68': 'diegoGmail',
         '80': 'rodrigo',
-        # '90': 'diegoUEFS',
+        '90': 'diegoUEFS',
         # '64': 'Rafael',
         # '75': 'Nerivaldo',
         #'39': 'solkanCengine',
@@ -796,7 +796,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
             gradeInter = geomet.intersection(geometDiv)            
             gradeInter = gradeInter.intersection(limiteCaat)
             areaInt = gradeInter.area(1).getInfo()
-            
+            print("area ", areaInt)
             if tile in grades_Solape and lado == 'B' or areaInt < 1000:
                 continue
             
@@ -804,7 +804,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                 continue
             
             else:
-
+                print("ntro")
                 try:
                 
                     newDatsetDiv = newDataset.map(lambda image: image.clip(gradeInter))
