@@ -885,7 +885,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                         nameAl = str(params['ano']) + '_' + str(orbNo)  + '_' + tile + '_' + lado + '_' + bndMedian + '_' + params['periodo']
                         exportarClassification(imgAnalitic, nameAl, gradeInter)
 
-                        contador = gerenciador(contador)
+                        # contador = gerenciador(contador)
                 
                 except:
 

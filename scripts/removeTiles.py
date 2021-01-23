@@ -19,20 +19,21 @@ bandasInd = [
         ]
 
 dictArqReg = {    
-    '52': ["24MXA"],
-    '95': ["24LTJ","24LUK","24LUL","24LUN","24LVL","24MVB","24MWA","24MXA"],  
-    '138': ["23MPM","23MQM","23MQN","23MRN","23MRQ","23MRR","23MRS","24MTA",
-            "24MTT","24MTV","23KPB","23LND","23LNE","23LNF","23LNG","23LNH",
-            "23LPG","23LPH","23LQE"]
+    # '52': ["24MXA"],
+    # '95': ["24LTJ","24LUK","24LUL","24LUN","24LVL","24MVB","24MWA","24MXA",],  
+    '95': ["23LRD","24LTJ","24LUJ","24LVM"],  
+    # '138': ["23MPM","23MQM","23MQN","23MRN","23MRQ","23MRR","23MRS","24MTA",
+    #         "24MTT","24MTV","23KPB","23LND","23LNE","23LNF","23LNG","23LNH",
+    #         "23LPG","23LPH","23LQE"]
 }
 
-dictArqRegOther = {    
-    '52': ["24LVM","24MWT","24MXT","24MXV","24MYS","24MYV","24MZS","24MZV",
-            "24LWQ","24LWR"],
-    '95': ["24LTQ","24LVR","24LWR","24MUA","24MUB","24MVB","24MWA","24MWB",
-            "24MXA"],  
-    '138': ["23MRS","24LTQ","24MTB","24MUA","24MUB","23LQJ","23LQK","23LRK"]
-}
+# dictArqRegOther = {    
+#     '52': ["24LVM","24MWT","24MXT","24MXV","24MYS","24MYV","24MZS","24MZV",
+#             "24LWQ","24LWR"],
+#     '95': ["24LTQ","24LVR","24LWR","24MUA","24MUB","24MVB","24MWA","24MWB",
+#             "24MXA"],  
+#     '138': ["23MRS","24LTQ","24MTB","24MUA","24MUB","23LQJ","23LQK","23LRK"]
+# }
 
 
 pathMosaic = 'users/mapbiomascaatinga05/mosaicSentinel2'
@@ -63,24 +64,24 @@ for orb, lstile in dictArqReg.items():
 
 print("quantidade de imagens removidas {} ".format(cont))
 
-cont = 0
-for orb, lstile in dictArqRegOther.items():
+# cont = 0
+# for orb, lstile in dictArqRegOther.items():
 
-    for tile in lstile:
+#     for tile in lstile:
 
-        for bnd in bandasInd:
+#         for bnd in bandasInd:
 
-            for lado in ['A', 'B']:
+#             for lado in ['A', 'B']:
 
-                nomeImg = '2020_' + orb + "_" + tile + "_" + lado + "_median" + "_" + bnd + '_year'
-                idAssetImg = pathMosaicMB + '/' + nomeImg
+#                 nomeImg = '2020_' + orb + "_" + tile + "_" + lado + "_median" + "_" + bnd + '_year'
+#                 idAssetImg = pathMosaicMB + '/' + nomeImg
 
-                try:
-                    ee.data.deleteAsset(idAssetImg)
-                    print("eliminando ❌ ... item 📍 " + nomeImg)
-                    cont += 1
+#                 try:
+#                     ee.data.deleteAsset(idAssetImg)
+#                     print("eliminando ❌ ... item 📍 " + nomeImg)
+#                     cont += 1
                 
-                except:
-                    print("no existe " + nomeImg)
+#                 except:
+#                     print("no existe " + nomeImg)
 
-print("quantidade de imagens removidas novas {} ".format(cont))
+# print("quantidade de imagens removidas novas {} ".format(cont))
