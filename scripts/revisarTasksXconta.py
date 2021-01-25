@@ -26,7 +26,7 @@ relatorios = open("registros/relatorioTaskXContas.txt", 'a+')
 
 param = {
     'unicaconta': True,    
-    'numeroTask': 20,
+    'numeroTask': 200,
     'numeroLimit': 16,
     'conta' : {
         '0': 'caatinga01',
@@ -78,9 +78,9 @@ def gerenciador(cont):
     return cont
 
 if param['unicaconta'] == True:
-
     cont = 16
     cont = gerenciador(cont)
+
 else:
     cont = 0
     for ii in range(0,17):        

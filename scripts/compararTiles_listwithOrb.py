@@ -18,30 +18,29 @@ lsTilesCaat = [
     '25LBL','25MBM','25MBN','25MBP','25MBQ'
 ]
 dictArqReg = {    
-        '9': ["25LBL","25MBM","25MBN"],
-        '52': ["24LVM","24MXS","24MYU","24LXQ"],  # ,"24MXA"
-        '95': [
-                "24LUN","24MWU","24MVS"
+        # '9': ["25LBL","25MBM","25MBN"],
+        '52': ["24MYU"],  # ,"24MXA","24LVM","24MXS","24LXQ"
+        '95': ["24LUN","24MWU","24MVS"],
         # "24LTJ","24LUK","24LUL","24LUN","24LVL","24MVB","24MWA","24MXA",
         #          "23LRD","24LTJ","24LUJ","24LVM"
-        ],      
-        '138': [
-                "23MPN","24MTA","24MTT","24MTV","24MTU","23LNC","23LQE"            
-        #         "23MPM","23MQM","23MQN","23MRN","23MRQ","23MRR","23MRS",
-        #     "23KPB","23LND","23LNE","23LNF","23LNG","23LNH",
+              
+        '138': ["24MTA","24MTT","24MTU","24MTV","23LNC","23LQE"]                            
+        #      "23MPM","23MQM","23MQN","23MRN","23MRQ","23MRR","23MRS",
+        #     "23KPB","23LND","23LNE","23LNF","23LNG","23LNH","23MPN",
         #     "23LPG","23LPH",
-        ]
+       
 }
 
 dictArqRegOther = {    
-        '52': [            
-                "24MWT","24MXT","24MXV","24MYS","24MYV","24MZS","24MZV",
-                "24LWQ","24LWR"
-                ],
-        '95': ["24LTQ","24LVR","24LWR","24MUA","24MUB","24MVB","24MWA","24MWB",
-                "24MXA"],  
-        '138': [
-                "23LRK","23MRS","24LTQ","24MTB","24MUA","24MUB","23LQJ","23LQK"
+        '52': ["24MXT"],            
+                # "24MWT","24MXV","24MYS","24MYV","24MZS","24MZV",
+                # "24LWQ","24LWR"
+                
+        '95': ["24LTQ","24LVR"],
+                # "24LWR","24MUA","24MUB","24MVB","24MWA","24MWB",
+                # "24MXA"  
+        '138': [ "24MTB",
+                # "23LRK","23MRS","24LTQ","24MUA","24MUB","23LQJ","23LQK"
                 ]
 }
 

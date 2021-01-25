@@ -823,7 +823,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqRegOther.items():
                 gradeInter = gradeInter.intersection(limiteCaat)
                 areaInt = gradeInter.area(1).getInfo()
                 print("area ", areaInt)
-                if tile in grades_Solape and lado == 'B' or areaInt < 1000:
+                if tile in grades_Solape and lado == 'B' or int(areaInt) < 1000:
                     continue
                 
                 elif tile == '24LUL' and orbNo == '95' and lado == 'A':
@@ -841,12 +841,12 @@ for orbNo, lsTiles in tiles_Orb.dictArqRegOther.items():
                         ## remoção de Nuvens        
                         #  matchiong histogram 
                         newDatsetDiv = newDatsetDiv.map(lambda image: operadorMosaic.match_Images(image))
-                        # print(newDataset.first().bandNames().getInfo())
+                        print(newDataset.first().bandNames().getInfo())
                         ## Clac
 
                         for cc, bnd_indece in enumerate(lsBND_ind):
 
-                            print("✅ processando a banda 🔰 " + bnd_indece + " 🔰")
+                            print("processando a banda 🔰 " + bnd_indece + " 🔰")
                             
                             if bnd_indece not in ['B2', 'B3', 'B4', 'B8', 'B11', 'B12']:
                                 newDatasetInd = newDatsetDiv.map(lambda image: operadorMosaic.CalculateIndice(image, bnd_indece))
@@ -869,8 +869,8 @@ for orbNo, lsTiles in tiles_Orb.dictArqRegOther.items():
                             # print("bandas seleccionadas {}".format(imgAnalitic.bandNames().getInfo()))
 
                             imgAnalitic = imgAnalitic.rename(bndMedian)
-                            # print(imgAnalitic.bandNames().getInfo())
-
+                            print(imgAnalitic.bandNames().getInfo())
+                            
                             ########################################
                             ####### Reducers Desvio Padrão   #######
                             # reducer = 'stdDev_'       
@@ -911,8 +911,8 @@ for orbNo, lsTiles in tiles_Orb.dictArqRegOther.items():
                             nameAl = str(params['ano']) + '_' + str(orbNo)  + '_' + tile + '_' + lado + '_' + bndMedian + '_' + params['periodo']
                             exportarClassification(imgAnalitic, nameAl, gradeInter)
 
-                            contador = gerenciador(contador)
-                    
+                            # contador = gerenciador(contador)
+                            print("✅ ")
                     except:
 
                         print("#############  ERRO NA GEOMETRIA    ######################")
