@@ -47,6 +47,7 @@ class ClassCalcIndicesSpectral(object):
     # cloudsMascara = True
 
     imgColClouds = None
+    imgClass = None
 
     def __init__(self, idRef):
 
@@ -170,16 +171,22 @@ class ClassCalcIndicesSpectral(object):
 
         image = self.maskS2clouds(image)
         # image = self.strecht_Images(image, self.geomet)
+        imgTempMaskAll = self.imgClass.clip(self.geomet).eq(0)
+        imgTempMaskWater = self.imgClass.clip(self.geomet).eq(1)
+
+        imageEq = image.clip(self.geomet).updateMask(imgTempMaskAll)
+        imgWater = image.updateMask(imgTempMaskWater).unmask(0).clip(self.geomet)
+
 
         matching = ee.Image().uint16()    
         
         for band in self.options['bandas']:
 
-            imgTemp = self.equalize(image.clip(self.geomet), band, self.geomet)
+            imgTemp = self.equalize(imageEq, band, self.geomet)
             
-            imgTemp = imgTemp.toUint16()#.clip(self.geomet)
+            imgTemp = imgTemp.unmask(0).clip(self.geomet).toUint16()
 
-            matching = matching.addBands(imgTemp)
+            matching = matching.addBands(imgTemp.add(imgWater.select(band)))
 
         matching = ee.Image.cat(matching.select(self.options['bandas']))
         matching = matching.set('system:footprint', self.geomet)
@@ -644,6 +651,7 @@ params = {
     "idassetOut": 'users/Tarefa01_MAPBIOMAS/teste_alerta_caatinga/ver1/', 
     "gradeS2Corr": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeSent_IC_Caat',  
     "gradeS2Div": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeNordeC',    
+    "assetMapbiomas": "projects/mapbiomas-workspace/public/collection5/mapbiomas_collection50_integration_v1",
     'pathHome': "/home/superusuario/Dados/projAlertas/tabFeitas/",
     'path_TF': "/tabFeitas/",    
     'isCaatinga': True,
@@ -657,7 +665,7 @@ params = {
     'conta' : {
         '0':  'caatinga01',
         '16': 'caatinga02',
-        # '16': 'caatinga03',
+        '16': 'caatinga03',
         '32': 'caatinga04',
         '42': 'caatinga05',        
         '56': 'solkan1201',
@@ -757,8 +765,11 @@ else:
 gradeS2 = ee.FeatureCollection(params['gradeS2Corr'])
 gradeDiv = ee.FeatureCollection(params['gradeS2Div'])
 limiteCaat = ee.FeatureCollection(params["assetLimBra"]).filter(ee.Filter.eq('codiso3166', 'BRA'))
-
-# datasetSent2 = 
+# binarisar para a classe de interesse o mapa de Mapbiomas ultimo ano
+imgClass = ee.Image(params["assetMapbiomas"]).select("classification_2019")  
+imgClass = imgClass.eq(33) # classe de agua com pixels = 1 o resto = 0
+# selecionando uam borda maior do espelho de agua 
+imgClass = imgClass.focal_min(3).focal_max(5)
 
 datasetCloudS2 = ee.ImageCollection('COPERNICUS/S2_CLOUD_PROBABILITY')\
     .filterDate(params['start'], params['end'])
@@ -766,13 +777,13 @@ datasetCloudS2 = ee.ImageCollection('COPERNICUS/S2_CLOUD_PROBABILITY')\
 print('Imagem de referencia \n ====> ' + tiles_Orb.imgRefCaat)
 operadorMosaic = ClassCalcIndicesSpectral(tiles_Orb.imgRefCaat)
 operadorMosaic.imgColClouds = datasetCloudS2
-
+operadorMosaic.imgClass = imgClass
 contador = 0
 reducer = '_median'
 # lsMedian = [ibnd + reducer for ibnd in bandasInd]
 limiteImg = 7
 
-for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
+for orbNo, lsTiles in tiles_Orb.dictArqRegOther.items():
 
     for tile in lsTiles:  
 
@@ -783,110 +794,129 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                                             ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))
                                         )).geometry() 
 
-        newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
-                        params['start'], params['end']).filter(
-                                ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
-                                    ee.Filter.eq('MGRS_TILE', tile)).filter(
-                                        ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).sort(
-                                            'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
+        
 
-        for lado in ['A', 'B']:
+        meanDictionary = imgClass.clip(geomet).reduceRegion(
+                                                    reducer= ee.Reducer.minMax(),
+                                                    geometry= geomet,
+                                                    scale= 100,
+                                                    maxPixels= 1e9
+                                                    )
 
-            geometDiv = gradeDiv.filter(ee.Filter.eq('label', tile + '_' + lado)).geometry()
-            gradeInter = geomet.intersection(geometDiv)            
-            gradeInter = gradeInter.intersection(limiteCaat)
-            areaInt = gradeInter.area(1).getInfo()
-            print("area ", areaInt)
-            if tile in grades_Solape and lado == 'B' or areaInt < 1000:
-                continue
-            
-            elif tile == '24LUL' and orbNo == '95' and lado == 'A':
-                continue
-            
-            else:
-                print("ntro")
-                try:
+        ##### The result is a Dictionary.  Print it.####
+        # print(meanDictionary)
+        extremo =  ee.Dictionary(meanDictionary).getNumber("classification_2019_max").getInfo()
+        print(extremo)
+        if int(extremo) > 0:
+
+            newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
+                            params['start'], params['end']).filter(
+                                    ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
+                                        ee.Filter.eq('MGRS_TILE', tile)).filter(
+                                            ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).sort(
+                                                'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
+
+            for lado in ['A', 'B']:
+
+                geometDiv = gradeDiv.filter(ee.Filter.eq('label', tile + '_' + lado)).geometry()
+                gradeInter = geomet.intersection(geometDiv)            
+                gradeInter = gradeInter.intersection(limiteCaat)
+                areaInt = gradeInter.area(1).getInfo()
+                print("area ", areaInt)
+                if tile in grades_Solape and lado == 'B' or areaInt < 1000:
+                    continue
                 
-                    newDatsetDiv = newDataset.map(lambda image: image.clip(gradeInter))
-                    numImg = newDataset.size()#.getInfo()      
-                    
-                    operadorMosaic.geomet = gradeInter
-                    
-                    ## remoção de Nuvens        
-                    #  matchiong histogram 
-                    newDatsetDiv = newDatsetDiv.map(lambda image: operadorMosaic.match_Images(image))
-                    # print(newDataset.first().bandNames().getInfo())
-                    ## Clac
-
-                    for cc, bnd_indece in enumerate(lsBND_ind):
-
-                        print("✅ processando a banda 🔰 " + bnd_indece + " 🔰")
-                        
-                        if bnd_indece not in ['B2', 'B3', 'B4', 'B8', 'B11', 'B12']:
-                            newDatasetInd = newDatsetDiv.map(lambda image: operadorMosaic.CalculateIndice(image, bnd_indece))
-                            # print(newDatasetInd.first().getInfo())
-                            newDatasetInd = newDatasetInd.select(bnd_indece) 
-                        
-                        else:
-                            newDatasetInd = newDatsetDiv.select(bnd_indece)
-                            # print(newDatasetInd.first().getInfo())                    
-                        
-                        ##########################################
-                        ########  Reducers Median cc  ############ 
-                        print(bandasInd[cc])
-                        reducer = 'median_'         
-                        bndMedian =  reducer + bandasInd[cc]
-                        
-                        imgAnalitic = newDatasetInd.median().toUint16()
-                        imgAnalitic = imgAnalitic.clip(gradeInter)
-
-                        # print("bandas seleccionadas {}".format(imgAnalitic.bandNames().getInfo()))
-
-                        imgAnalitic = imgAnalitic.rename(bndMedian)
-                        # print(imgAnalitic.bandNames().getInfo())
-
-                        ########################################
-                        ####### Reducers Desvio Padrão   #######
-                        # reducer = 'stdDev_'       
-                        # lsstdDev = [reducer + ibnd for ibnd in bandasInd]
-                        # std_imgAnalitic = newDatasetInd.reduce(
-                        #                         reducer= ee.Reducer.stdDev(), 
-                        #                         parallelScale= 2).toUint16()
-
-                        # ## Reducers Minimum
-                        # reducer = 'min_'
-                        # for bnd in lsIndMin:
-
-                        #     bandTemp = ee.Image(newDatasetInd.select(bnd).min()).rename(reducer + bnd)
-                        #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
-                        #     imgAnalitic = imgAnalitic.addBands(bandTemp)
-                        
-                        # ## Reducers Maximum
-                        # reducer = 'max_'
-                        # for bnd in lsIndMax:
-
-                        #     bandTemp = ee.Image(newDatasetInd.select(bnd).max()).rename(reducer + bnd)
-                        #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
-                        #     imgAnalitic = imgAnalitic.addBands(bandTemp)
-                        
-                        # set properties
-                        # imgAnalitic = imgAnalitic.addBands(std_imgAnalitic)
-                        imgAnalitic = imgAnalitic.clip(gradeInter)
-                        imgAnalitic = imgAnalitic.set('system:footprint', gradeInter)
-                        imgAnalitic = imgAnalitic.set('year', params['ano'])
-                        imgAnalitic = imgAnalitic.set('MGRS_TILE', tile)
-                        imgAnalitic = imgAnalitic.set('SENSING_ORBIT_NUMBER', orbNo)
-                        imgAnalitic = imgAnalitic.set('NUM_IMAGENS', numImg)
-                        imgAnalitic = imgAnalitic.set('banda', bndMedian)
-                        imgAnalitic = imgAnalitic.set('periodo', params['periodo'])
-                        imgAnalitic = imgAnalitic.set('lado', lado)
-
-                        # save imagens 
-                        nameAl = str(params['ano']) + '_' + str(orbNo)  + '_' + tile + '_' + lado + '_' + bndMedian + '_' + params['periodo']
-                        exportarClassification(imgAnalitic, nameAl, gradeInter)
-
-                        # contador = gerenciador(contador)
+                elif tile == '24LUL' and orbNo == '95' and lado == 'A':
+                    continue
                 
-                except:
+                else:
+                    print("ntro")
+                    try:
+                    
+                        newDatsetDiv = newDataset.map(lambda image: image.clip(gradeInter))
+                        numImg = newDataset.size()#.getInfo()      
+                        
+                        operadorMosaic.geomet = gradeInter
+                        
+                        ## remoção de Nuvens        
+                        #  matchiong histogram 
+                        newDatsetDiv = newDatsetDiv.map(lambda image: operadorMosaic.match_Images(image))
+                        # print(newDataset.first().bandNames().getInfo())
+                        ## Clac
 
-                    print("#############  ERRO NA GEOMETRIA    ######################")
+                        for cc, bnd_indece in enumerate(lsBND_ind):
+
+                            print("✅ processando a banda 🔰 " + bnd_indece + " 🔰")
+                            
+                            if bnd_indece not in ['B2', 'B3', 'B4', 'B8', 'B11', 'B12']:
+                                newDatasetInd = newDatsetDiv.map(lambda image: operadorMosaic.CalculateIndice(image, bnd_indece))
+                                # print(newDatasetInd.first().getInfo())
+                                newDatasetInd = newDatasetInd.select(bnd_indece) 
+                            
+                            else:
+                                newDatasetInd = newDatsetDiv.select(bnd_indece)
+                                # print(newDatasetInd.first().getInfo())                    
+                            
+                            ##########################################
+                            ########  Reducers Median cc  ############ 
+                            print(bandasInd[cc])
+                            reducer = 'median_'         
+                            bndMedian =  reducer + bandasInd[cc]
+                            
+                            imgAnalitic = newDatasetInd.median().toUint16()
+                            imgAnalitic = imgAnalitic.clip(gradeInter)
+
+                            # print("bandas seleccionadas {}".format(imgAnalitic.bandNames().getInfo()))
+
+                            imgAnalitic = imgAnalitic.rename(bndMedian)
+                            # print(imgAnalitic.bandNames().getInfo())
+
+                            ########################################
+                            ####### Reducers Desvio Padrão   #######
+                            # reducer = 'stdDev_'       
+                            # lsstdDev = [reducer + ibnd for ibnd in bandasInd]
+                            # std_imgAnalitic = newDatasetInd.reduce(
+                            #                         reducer= ee.Reducer.stdDev(), 
+                            #                         parallelScale= 2).toUint16()
+
+                            # ## Reducers Minimum
+                            # reducer = 'min_'
+                            # for bnd in lsIndMin:
+
+                            #     bandTemp = ee.Image(newDatasetInd.select(bnd).min()).rename(reducer + bnd)
+                            #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
+                            #     imgAnalitic = imgAnalitic.addBands(bandTemp)
+                            
+                            # ## Reducers Maximum
+                            # reducer = 'max_'
+                            # for bnd in lsIndMax:
+
+                            #     bandTemp = ee.Image(newDatasetInd.select(bnd).max()).rename(reducer + bnd)
+                            #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
+                            #     imgAnalitic = imgAnalitic.addBands(bandTemp)
+                            
+                            # set properties
+                            # imgAnalitic = imgAnalitic.addBands(std_imgAnalitic)
+                            imgAnalitic = imgAnalitic.clip(gradeInter)
+                            imgAnalitic = imgAnalitic.set('system:footprint', gradeInter)
+                            imgAnalitic = imgAnalitic.set('year', params['ano'])
+                            imgAnalitic = imgAnalitic.set('MGRS_TILE', tile)
+                            imgAnalitic = imgAnalitic.set('SENSING_ORBIT_NUMBER', orbNo)
+                            imgAnalitic = imgAnalitic.set('NUM_IMAGENS', numImg)
+                            imgAnalitic = imgAnalitic.set('banda', bndMedian)
+                            imgAnalitic = imgAnalitic.set('periodo', params['periodo'])
+                            imgAnalitic = imgAnalitic.set('lado', lado)
+
+                            # save imagens 
+                            nameAl = str(params['ano']) + '_' + str(orbNo)  + '_' + tile + '_' + lado + '_' + bndMedian + '_' + params['periodo']
+                            exportarClassification(imgAnalitic, nameAl, gradeInter)
+
+                            contador = gerenciador(contador)
+                    
+                    except:
+
+                        print("#############  ERRO NA GEOMETRIA    ######################")
+        
+        else:
+
+            print("salva o tile e orbita para rodar normal ")
