@@ -18,13 +18,13 @@ lsTilesCaat = [
     '25LBL','25MBM','25MBN','25MBP','25MBQ'
 ]
 dictArqReg = {    
-        # '9': ["25LBL","25MBM","25MBN"],
-        '52': ["24MYU"],  # ,"24MXA","24LVM","24MXS","24LXQ"
-        '95': ["24LUN","24MWU","24MVS"],
+        '9': ["25LBL","25MBM","25MBN"],
+        # '52': ["24MYU"],  # ,"24MXA","24LVM","24MXS","24LXQ"
+        # '95': ["24LUN","24MWU","24MVS"],
         # "24LTJ","24LUK","24LUL","24LUN","24LVL","24MVB","24MWA","24MXA",
         #          "23LRD","24LTJ","24LUJ","24LVM"
               
-        '138': ["24MTA","24MTT","24MTU","24MTV","23LNC","23LQE"]                            
+        # '138': ["24MTA","24MTT","24MTU","24MTV","23LNC","23LQE"]                            
         #      "23MPM","23MQM","23MQN","23MRN","23MRQ","23MRR","23MRS",
         #     "23KPB","23LND","23LNE","23LNF","23LNG","23LNH","23MPN",
         #     "23LPG","23LPH",
@@ -44,7 +44,33 @@ dictArqRegOther = {
                 ]
 }
 
-
+dictArqRegPan = {    
+        '24': [
+                '21KVR','21KWA','21KWR','21KWS','21KWT','21KWU',
+                '21KWV','21KXA','21KXB','21KXR','21KXS','21KXT',
+                '21KXU','21KXV','21KYA','21KYB','21KYS','21KYT',
+                '21KYU','21KYV','21KZA','21KZB','21KZU','21KZV',
+                '21LXC','21LXD','21LXE','21LYC','21LYD','21LYE',
+                '21LZC','22KBD','22KBE','22KBF','22KBG','22LBH'
+        ],
+        '67' : [
+                '21KUA','21KUB','21KUR','21KUS','21KUT','21KUU',
+                '21KVA','21KVB','21KVR','21KVS','21KVT','21KVU',
+                '21KVV','21KWA','21KWB','21KWR','21KWS','21KWT',
+                '21KWU','21KWV','21KXA','21KXB','21KXU','21KXV',
+                '21LUC','21LUD','21LVC','21LVD','21LVE','21LWC',
+                '21LWD','21LWE','21LXC','21LXD','21LXE','21LYD',
+                '21LYE'
+        ],    
+        '110': [
+                '20KRG','20LRH','21KTB','21KUA','21KUB','21KVB',
+                '21LTC','21LTD','21LUC','21LUD','21LUE','21LVC',
+                '21LVD','21LVE'
+        ],
+        '124' : [
+                '21KZA','21KZU','21KZV','22KBD','22KBE','22KBF'
+        ]
+}
 # dictArqReg ={
     
 #     # '9' : [

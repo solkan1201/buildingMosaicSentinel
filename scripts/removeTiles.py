@@ -30,12 +30,12 @@ bandasInd = [
 dictArqRegOther = {    
     '52': [
             "24LVM",
-        #     "24MWT","24MXT","24MXV","24MYS","24MYV","24MZS","24MZV",
-        #     "24LWQ","24LWR"
+            "24MWT","24MXT","24MXV","24MYS","24MYV","24MZS","24MZV",
+            "24LWQ","24LWR"
             ],
-#     '95': ["24LTQ","24LVR","24LWR","24MUA","24MUB","24MVB","24MWA","24MWB",
-#             "24MXA"],  
-#     '138': ["23MRS","24LTQ","24MTB","24MUA","24MUB","23LQJ","23LQK","23LRK"]
+    '95': ["24LTQ","24LVR","24LWR","24MUA","24MUB","24MVB","24MWA","24MWB",
+            "24MXA"],  
+    '138': ["23MRS","24LTQ","24MTB","24MUA","24MUB","23LQJ","23LQK","23LRK"]
 }
 
 pathMosaic = 'users/mapbiomascaatinga05/mosaicSentinel2'

@@ -78,7 +78,7 @@ def gerenciador(cont):
     return cont
 
 if param['unicaconta'] == True:
-    cont = 16
+    cont = 4
     cont = gerenciador(cont)
 
 else:
