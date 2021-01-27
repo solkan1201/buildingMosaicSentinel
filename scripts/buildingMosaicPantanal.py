@@ -1,6 +1,5 @@
 #-*- coding utf-8 -*-
 import ee
-import gee
 import os
 import sys
 import random
@@ -601,7 +600,7 @@ class ClassCalcIndicesSpectral(object):
 
 def exportarClassification(imgTransf, nameAl, geomGrade):
     
-    IdAsset = 'projects/mapbiomas-workspace/AMOSTRAS/col5/CAATINGA/MOSAIC/mosaics/' + nameAl 
+    IdAsset = 'projects/mapbiomas-workspace/AMOSTRAS/col5/CAATINGA/MOSAIC/mosaicsTest/' + nameAl 
     # IdAsset = 'users/mapbiomascaatinga05/mosaicSentinel2/' + nameAl
     print(" Salvando en id Asset:")
     print("   <> {}".format(IdAsset))
@@ -771,7 +770,7 @@ reducer = '_median'
 # lsMedian = [ibnd + reducer for ibnd in bandasInd]
 limiteImg = 7
 
-for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
+for orbNo, lsTiles in tiles_Orb.dictArqRegPan.items():
 
     for tile in lsTiles:  
 
@@ -781,7 +780,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                                             ee.Filter.eq('MGRS_TILE', tile),
                                             ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))
                                         )).geometry() 
-
+        
         newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
                         params['start'], params['end']).filter(
                                 ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
