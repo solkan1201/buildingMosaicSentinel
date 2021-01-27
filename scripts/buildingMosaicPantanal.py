@@ -309,7 +309,7 @@ class ClassCalcIndicesSpectral(object):
     
     def agregateBandsIndexNDVI(self, img):
     
-        ndviImg = img.expression("float(b('B8') - b('B12')) / (b('B8') + b('B12'))")\
+        ndviImg = img.expression("float(b('B8') - b('B4')) / (b('B8') + b('B4'))")\
                                 .add(1).multiply(10000).rename(['ndvi'])       
 
         # return img.addBands(ndviImg)
