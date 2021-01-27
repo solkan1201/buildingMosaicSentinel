@@ -102,14 +102,220 @@ var lisBND = {
     '100':"stdDev_temp",
     '101':"stdDev_wefi"
 }
+var agregateBandsIndexGCVI = function(img){
+        
+    var gcviImgA = img.expression(
+                    "float(b('median_nir')) / (b('median_green')) - 1")
+                    .divide(10).add(1).multiply(1000)
+                    .rename(['c_median_gcvi'])        
+    
+    return img.addBands(gcviImgA)
+}
+var agregateBandsIndexOSAVI = function(img){
+
+    var osaviImg = img.expression(
+        "float(b('median_nir') - b('median_red')) / (0.16 + b('median_nir') + b('median_red'))")
+            .divide(10).add(1).multiply(1000)
+            .rename(['c_median_savi'])        
+    
+    return img.addBands(osaviImg)
+}
+var agregateBandsIndexSoil = function(img){
+    
+    var soilImg = img.expression(
+        "float(b('median_nir') - b('median_green')) / (b('median_nir') + b('median_green'))").add(1).multiply(1000)
+            .rename(['c_median_isoil'])       
+    
+    return img.addBands(soilImg)    
+}
+var agregateBandsgetFractions = function(img){
+    
+    var bandas = ['median_blue','median_green','median_red','median_nir','median_swir1','median_swir2']  
+    var bandsFraction = ['c_median_gv','c_median_npv','c_median_soil','c_median_cloud', 'c_median_shade']
+    // Define endmembers
+    var endmembers =  [
+            [ 119.0,  475.0,  169.0, 6250.0, 2399.0,  675.0], //*gv*/
+            [1514.0, 1597.0, 1421.0, 3053.0, 7707.0, 1975.0], //*npv*/
+            [1799.0, 2479.0, 3158.0, 5437.0, 7707.0, 6646.0], //*soil*/
+            [4031.0, 8714.0, 7900.0, 8989.0, 7002.0, 6607.0], //*cloud*/
+            [   0.0,    0.0,    0.0,    0.0,    0.0,    0.0]  //*Shade*/
+        ]
+    //# Uminxing data
+    var fractions = ee.Image(img).select(bandas).unmix(endmembers).float().multiply(10000)
+    
+    fractions = fractions.select([0,1,2,3,4], self.options['bandsFraction'])        
+    
+    return img.addBands(fractions)
+}
 var agregateBandsIndexNDVI= function(img){
     
-        var ndviImg = img.expression("float(b('B8') - b('B12')) / (b('B8') + b('B12'))")
-                        .add(1).multiply(10000).rename(['ndvi_n'])       
+        var ndviImg = img.expression("float(b('median_nir') - b('median_red')) / (b('median_nir') + b('median_red'))")
+                        .add(1).multiply(10000).rename(['c_median_ndvi'])       
     
         return img.addBands(ndviImg)
 }
-  
+var agregateBandsIndexEVI = function(img){
+        
+    var eviImg = img.expression(
+        "float(2.4 * (b('median_nir') - b('median_red')) / (1 + b('median_nir') + b('median_red')))")
+            .divide(10).add(1).multiply(10000)
+            .rename(['c_median_evi2'])     
+    
+    return img.addBands(eviImg)
+}
+var agregateBandsIndexWater= function(img){
+    
+        var ndwiImg = img.expression("float(b('median_nir') - b('median_swir2')) / (b('median_nir') + b('median_swir2'))")
+                        .add(1).multiply(10000).rename(['c_median_ndwi'])       
+    
+        return img.addBands(ndviImg)
+}
+var agregateBandsIndexGCVI_dry = function(img){
+        
+    var gcviImgA = img.expression(
+            "float(b('median_nir_dry')) / (b('median_green_dry')) - 1")
+            .divide(10).add(1).multiply(1000)
+            .rename(['c_median_gcvi_dry'])        
+    
+    return img.addBands(gcviImgA)
+}
+var agregateBandsIndexOSAVI_dry = function(img){
+
+    var osaviImg = img.expression(
+        "float(b('median_nir_dry') - b('median_red_dry')) / (0.16 + b('median_nir_dry') + b('median_red_dry'))")
+            .divide(10).add(1).multiply(10000)
+            .rename(['c_median_savi_dry'])        
+    
+    return img.addBands(osaviImg)
+}
+var agregateBandsIndexSoil_dry = function(img){
+    
+    var soilImg = img.expression(
+        "float(b('median_nir_dry') - b('median_green_dry')) / (b('median_nir_dry') + b('median_green_dry'))")
+            .rename(['c_median_isoil_dry'])       
+    
+    return img.addBands(soilImg)    
+}
+var agregateBandsgetFractions_dry = function(img){
+    
+    var bandas = ['median_blue_dry','median_green_dry','median_red_dry','median_nir_dry','median_swir1_dry','median_swir2_dry']  
+    var bandsFraction = ['c_median_gv_dry','c_median_npv_dry','c_median_soil_dry','c_median_cloud_dry', 'c_median_shade_dry']
+    // Define endmembers
+    var endmembers =  [
+            [ 119.0,  475.0,  169.0, 6250.0, 2399.0,  675.0], //*gv*/
+            [1514.0, 1597.0, 1421.0, 3053.0, 7707.0, 1975.0], //*npv*/
+            [1799.0, 2479.0, 3158.0, 5437.0, 7707.0, 6646.0], //*soil*/
+            [4031.0, 8714.0, 7900.0, 8989.0, 7002.0, 6607.0], //*cloud*/
+            [   0.0,    0.0,    0.0,    0.0,    0.0,    0.0]  //*Shade*/
+        ]
+    //# Uminxing data
+    var fractions = ee.Image(img).select(bandas).unmix(endmembers).float().multiply(10000)
+    
+    fractions = fractions.select([0,1,2,3,4], self.options['bandsFraction'])        
+    
+    return img.addBands(fractions)
+}
+var agregateBandsIndexNDVI_dry= function(img){
+    
+        var ndviImg = img.expression("float(b('median_nir_dry') - b('median_red_dry')) / (b('median_nir_dry') + b('median_red_dry'))")
+                        .add(1).multiply(10000).rename(['c_median_ndvi_dry'])       
+    
+        return img.addBands(ndviImg)
+}
+var agregateBandsIndexEVI_dry = function(img){
+        
+    var eviImg = img.expression(
+            "float(2.4 * (b('median_nir_dry') - b('median_red_dry')) / (1 + b('median_nir_dry') + b('median_red_dry')))")
+            .divide(10).add(1).multiply(10000)
+            .rename(['c_median_evi2_dry'])     
+    
+    return img.addBands(eviImg)
+}
+var agregateBandsIndexWater_dry = function(img){
+    
+        var ndwiImg = img.expression("float(b('median_nir_dry') - b('median_swir2_dry')) / (b('median_nir_dry') + b('median_swir2_dry'))")
+                        .add(1).multiply(10000).rename(['c_median_ndwi_dry'])       
+    
+        return img.addBands(ndviImg)
+}
+var agregateBandsIndexGCVI_wet = function(img){
+        
+    var gcviImgA = img.expression(
+        "float(b('median_nir_wet')) / (b('median_green_wet')) - 1")
+            .divide(10).add(1).multiply(1000)
+            .rename(['c_median_gcvi_wet'])        
+    
+    return img.addBands(gcviImgA)
+}
+var agregateBandsIndexOSAVI_wet = function(img){
+
+    var osaviImg = img.expression(
+        "float(b('median_nir_wet') - b('median_red_wet')) / (0.16 + b('median_nir_wet') + b('median_red_wet'))")
+            .divide(10).add(1).multiply(1000)
+            .rename(['c_median_savi_wet'])        
+    
+    return img.addBands(osaviImg)
+}
+var agregateBandsIndexSoil_wet = function(img){
+    
+    var soilImg = img.expression(
+        "float(b('median_nir_wet') - b('median_green_wet')) / (b('median_nir_wet') + b('median_green_wet'))").add(1).multiply(1000)
+            .rename(['c_median_isoil_wet'])       
+    
+    return img.addBands(soilImg)    
+}
+var agregateBandsgetFractions_wet = function(img){
+    
+    var bandas = ['median_blue_wet','median_green_wet','median_red_wet','median_nir_wet','median_swir1_wet','median_swir2_wet']  
+    var bandsFraction = ['c_median_gv_wet','c_median_npv_wet','c_median_soil_wet','c_median_cloud_wet', 'c_median_shade_wet']
+    // Define endmembers
+    var endmembers =  [
+            [ 119.0,  475.0,  169.0, 6250.0, 2399.0,  675.0], //*gv*/
+            [1514.0, 1597.0, 1421.0, 3053.0, 7707.0, 1975.0], //*npv*/
+            [1799.0, 2479.0, 3158.0, 5437.0, 7707.0, 6646.0], //*soil*/
+            [4031.0, 8714.0, 7900.0, 8989.0, 7002.0, 6607.0], //*cloud*/
+            [   0.0,    0.0,    0.0,    0.0,    0.0,    0.0]  //*Shade*/
+        ]
+    //# Uminxing data
+    var fractions = ee.Image(img).select(bandas).unmix(endmembers).float().multiply(10000)
+    
+    fractions = fractions.select([0,1,2,3,4], bandsFraction)        
+    
+    return img.addBands(fractions)
+}
+var agregateBandsIndexNDVI_wet = function(img){
+    
+        var ndviImg = img.expression("float(b('median_nir_wet') - b('median_red_wet')) / (b('median_nir_wet') + b('median_red_wet'))")
+                        .add(1).multiply(10000).rename(['c_median_ndvi_wet'])       
+    
+        return img.addBands(ndviImg)
+}
+var agregateBandsIndexEVI_wet = function(img){
+        
+    var eviImg = img.expression(
+        "float(2.4 * (b('median_nir_wet') - b('median_red_wet')) / (1 + b('median_nir_wet') + b('median_red_wet')))")
+            .divide(10).add(1).multiply(10000)
+            .rename(['c_median_evi2_wet'])     
+    
+    return img.addBands(eviImg)
+}
+var agregateBandsIndexWater_wet = function(img){
+    
+        var ndwiImg = img.expression("float(b('median_nir_wet') - b('median_swir2_wet')) / (b('median_nir_wet') + b('median_swir2_wet'))")
+                        .add(1).multiply(10000).rename(['c_median_ndwi_wet'])       
+    
+        return img.addBands(ndviImg)
+}
+
+var dictInd = {
+    "median_ndvi":'ndvi',
+    "median_ndwi":'ndwi',
+    "median_gcvi":'gcvi',
+    "median_evi2":'evi2',
+    'meadian_savi':'savi',
+    "median_gv":'gv',
+    "median_npv":'npv',
+}
 
 //print(class4)
 var palettesMapBiomas = require('users/mapbiomas/modules:Palettes.js');
@@ -179,7 +385,12 @@ var img =ee.Image('COPERNICUS/S2_SR/' + lsIdImg[2])
                     //.divide(10000)
 var geomLimit = img.geometry()                    
 var yearini = 2005
-var yearfin = 2013
+var indice1 = lisBND[16]
+var indice2 = lisBND[17]
+var indice3 = lisBND[18]
+var indcal = dictInd[indice1]
+
+// var yearfin = 2013
 var FeatColbacia = ee.FeatureCollection('users/CartasSol/shapes/nCaatingaBff3000').geometry();
 var Mosaicos = ee.ImageCollection(param.assetMosaic).filter(
                                         ee.Filter.or(
@@ -191,22 +402,64 @@ var Mosaicos = ee.ImageCollection(param.assetMosaic).filter(
 
 print(Mosaicos.first())
 var MosaicTIni = Mosaicos.filter(ee.Filter.eq('year', yearini)).mosaic().clip(geomLimit)
-var MosaicTFin = Mosaicos.filter(ee.Filter.eq('year', yearfin)).mosaic().clip(geomLimit)
+// var MosaicTFin = Mosaicos.filter(ee.Filter.eq('year', yearfin)).mosaic().clip(geomLimit)
 
-var indice1 = lisBND[16]
-var indice2 = lisBND[17]
+switch(indcal) {
+    case 'ndvi':
+        print('ndvi')
+        MosaicTIni = agregateBandsIndexNDVI(MosaicTIni)
+        MosaicTIni = agregateBandsIndexNDVI_dry(MosaicTIni)
+        MosaicTIni = agregateBandsIndexNDVI_wet(MosaicTIni)
+        break;
+    case 'ndwi':
+        print('ndwi')
+        MosaicTIni = agregateBandsIndexWater(MosaicTIni)
+        MosaicTIni = agregateBandsIndexWater_dry(MosaicTIni)
+        MosaicTIni = agregateBandsIndexWater_wet(MosaicTIni)
+        break;
+    case 'gcvi':
+        print('gcvi')
+        MosaicTIni = agregateBandsIndexGCVI(MosaicTIni)
+        MosaicTIni = agregateBandsIndexGCVI_dry(MosaicTIni)
+        MosaicTIni = agregateBandsIndexGCVI_wet(MosaicTIni)
+        break;
+    case 'evi2':
+        print('evi2')
+        MosaicTIni = agregateBandsIndexEVI(MosaicTIni)
+        MosaicTIni = agregateBandsIndexEVI_dry(MosaicTIni)
+        MosaicTIni = agregateBandsIndexEVI_wet(MosaicTIni)
+        break;
+    case 'gv':
+        print('gv')
+        MosaicTIni = agregateBandsgetFractions(MosaicTIni)
+        MosaicTIni = agregateBandsgetFractions_dry(MosaicTIni)
+        MosaicTIni = agregateBandsgetFractions_wet(MosaicTIni)
+        break;
+    case 'npv':
+        print('npv')
+        MosaicTIni = agregateBandsgetFractions(MosaicTIni)
+        MosaicTIni = agregateBandsgetFractions_dry(MosaicTIni)
+        MosaicTIni = agregateBandsgetFractions_wet(MosaicTIni)
+        break;
+    case 'savi':
+        print('savi')
+        MosaicTIni = agregateBandsIndexOSAVI(MosaicTIni)
+        MosaicTIni = agregateBandsIndexOSAVI_dry(MosaicTIni)
+        MosaicTIni = agregateBandsIndexOSAVI_wet(MosaicTIni)
+        break;
+    default:
+        print(" CALCULANDO NINHUM  INDICE ")
+} 
 
 
 Map.addLayer(MosaicTIni, param.visMosaic, "Mosc" + yearini.toString())
-Map.addLayer(MosaicTIni.select(indice1), {min: 0, max: 200, palette: paletteVeg}, "EVI");
-Map.addLayer(MosaicTIni.select(indice2), {min: 0, max: 200, palette: paletteVeg}, "NDFI");
-
-
-
+Map.addLayer(MosaicTIni.select(indice1), {min: 0, max: 200, palette: paletteVeg}, indice1);
+Map.addLayer(MosaicTIni.select(indice2), {min: 0, max: 200, palette: paletteVeg}, indice2);
+Map.addLayer(MosaicTIni.select(indice3), {min: 0, max: 200, palette: paletteVeg}, indice3);
 
 
 var options = {
-    title: 'NDVI',
+    title: indcal + " para todo o ano " + yearini.toString(),
     fontSize: 20,
     hAxis: {title: 'DN'},
     vAxis: {title: 'count of DN'},
@@ -214,18 +467,104 @@ var options = {
     0: {color: 'blue'}
     }
 };
-
 // Make the histogram, set the options.
-var histNDVI= ui.Chart.image.histogram(MosaicTIni.select(["median_evi2"]), img.geometry(), 100)
-    .setSeriesNames(['NDVI'])
-    .setOptions(options);
+var histIndice1= ui.Chart.image.histogram(MosaicTIni.select(indice1), geomLimit, 100)
+                            .setSeriesNames(['NDVI'])
+                            .setOptions(options);
 
 // Display the histogram.
-print(histNDVI);
+print(histIndice1);
+
+options = {
+    title: indcal + " do periodo seco do ano " + yearini.toString(),
+    fontSize: 20,
+    hAxis: {title: 'DN'},
+    vAxis: {title: 'count of DN'},
+    series: {
+    0: {color: 'blue'}
+    }
+};
+// Make the histogram, set the options.
+var histIndice2 = ui.Chart.image.histogram(MosaicTIni.select(indice2), geomLimit, 100)
+                            .setSeriesNames(['NDVI'])
+                            .setOptions(options);
+
+// Display the histogram.
+print(histIndice2);
+
+options = {
+    title: indcal + "do periodo chuvos o ano " + yearini.toString(),
+    fontSize: 20,
+    hAxis: {title: 'DN'},
+    vAxis: {title: 'count of DN'},
+    series: {
+    0: {color: 'blue'}
+    }
+};
+// Make the histogram, set the options.
+var histIndice3 = ui.Chart.image.histogram(MosaicTIni.select(indice3), geomLimit, 100)
+                            .setSeriesNames(['NDVI'])
+                            .setOptions(options);
+
+// Display the histogram.
+print(histIndice3);
 
 
+Map.addLayer(MosaicTIni.select('c_' + indice1), {min: 9500, max: 11500, palette: paletteVeg}, 'calc_' + indice1);
+Map.addLayer(MosaicTIni.select('c_' + indice2), {min: 9500, max: 11500, palette: paletteVeg},'calc_' + indice2);
+Map.addLayer(MosaicTIni.select('c_' + indice3), {min: 9500, max: 11500, palette: paletteVeg}, 'calc_' + indice3);
 
 
+options = {
+    title: indcal + " CALCULADO para todo o ano " + yearini.toString(),
+    fontSize: 20,
+    hAxis: {title: 'DN'},
+    vAxis: {title: 'count of DN'},
+    series: {
+    0: {color: 'red'}
+    }
+};
+print('c_' + indice1)
+// Make the histogram, set the options.
+var histIndice4= ui.Chart.image.histogram(MosaicTIni.select('c_' + indice1), geomLimit, 100)
+                            .setSeriesNames(['NDVI'])
+                            .setOptions(options);
 
-Map.addLayer(MosaicTFin, param.visMosaic, "Mosc" + yearfin.toString())
-Map.addLayer(MosaicTFin.select(indice1), {min: 0, max: 200, palette: paletteVeg}, "GCVI");
+// Display the histogram.
+print(histIndice4);
+
+options = {
+    title: indcal + " CALCULADO do periodo seco do ano " + yearini.toString(),
+    fontSize: 20,
+    hAxis: {title: 'DN'},
+    vAxis: {title: 'count of DN'},
+    series: {
+    0: {color: 'red'}
+    }
+};
+print('c_' + indice2)
+// Make the histogram, set the options.
+var histIndice5 = ui.Chart.image.histogram(MosaicTIni.select('c_' + indice2), geomLimit, 100)
+                            .setSeriesNames(['NDVI'])
+                            .setOptions(options);
+
+// Display the histogram.
+print(histIndice5);
+
+options = {
+    title: indcal + "CALCULADO do periodo chuvos o ano " + yearini.toString(),
+    fontSize: 20,
+    hAxis: {title: 'DN'},
+    vAxis: {title: 'count of DN'},
+    series: {
+    0: {color: 'red'}
+    }
+};
+print('c_' + indice3)
+// Make the histogram, set the options.
+var histIndice6 = ui.Chart.image.histogram(MosaicTIni.select('c_' + indice3), geomLimit, 100)
+                            .setSeriesNames(['NDVI'])
+                            .setOptions(options);
+
+// Display the histogram.
+print(histIndice6);
