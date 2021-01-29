@@ -641,8 +641,8 @@ params = {
     "bandasAll": ['B2','B3', 'B4', 'B8', 'B11', 'B12'],   
     "assetLimBra": 'users/CartasSol/shapes/brasil_manual',  
     "idassetOut": 'users/Tarefa01_MAPBIOMAS/teste_alerta_caatinga/ver1/', 
-    "gradeS2Corr": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeSent_IC_Pantanal',  
-    "gradeS2Div": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeSent_Pan_corr2',    
+    "gradeS2Corr": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeSent_IC_MatAtl',  
+    "gradeS2Div": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeSent_MatAtl_corr2',    
     'pathHome': "/home/superusuario/Dados/projAlertas/tabFeitas/",
     'path_TF': "/tabFeitas/",    
     'isCaatinga': True,
@@ -761,8 +761,8 @@ limiteCaat = ee.FeatureCollection(params["assetLimBra"])
 datasetCloudS2 = ee.ImageCollection('COPERNICUS/S2_CLOUD_PROBABILITY')\
     .filterDate(params['start'], params['end'])
 
-print('Imagem de referencia \n ====> ' + tiles_Orb.imgRefPan)
-operadorMosaic = ClassCalcIndicesSpectral(tiles_Orb.imgRefPan)
+print('Imagem de referencia \n ====> ' + tiles_Orb.imgRefMatAtl)
+operadorMosaic = ClassCalcIndicesSpectral(tiles_Orb.imgRefMatAtl)
 operadorMosaic.imgColClouds = datasetCloudS2
 
 contador = 0
@@ -770,7 +770,7 @@ reducer = '_median'
 # lsMedian = [ibnd + reducer for ibnd in bandasInd]
 limiteImg = 7
 
-for orbNo, lsTiles in tiles_Orb.dictArqRegPan.items():
+for orbNo, lsTiles in tiles_Orb.dictArqRegMAtla.items():
 
     for tile in lsTiles:  
 

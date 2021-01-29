@@ -74,14 +74,48 @@ dictArqRegPan = {
 
 dictArqRegMAtla = {
         
-        '9' : [
-               '24LYR','24LZQ','24LZR','24MZS','24MZT','24MZU','24MZV',
-               '25LBK','25LBL','25MBM','25MBN','25MBP','25MBQ','25MCM',
-               '25MCN','24LYP','24LYQ','24LZP',
+        '52': [
+               '23KQQ',
+               '23KQR','23KRQ','23KRR','23KRS','23KRT','23KRU','24KTA',
+               '24KTB','24KTC','24KTD','24KTE','24KTF','24KTV','24KUB',
+               '24KUC','24KUD','24KUE','24KUF','24KUG','24KVD','24KVE',
+               '24KVF','24KVG','24KWF','24LUH','24LUJ','24LVH','24LVJ',
+               '24LVK','24LWH','24LWJ','24LWK','24LWL','24LXM','24LYN',
+               '24LZQ','25MBP','23KRV',
         ],
-        '24' : [
-                '21KXP','21KXQ','21KXR','21KXS','21KYP','21KYQ','21KYR',
-                '21KYS','21KZR','21KZS'
+        '124' : [
+                '21JXH','21JXJ','21JXK','21JYH','21JYJ','21JYK','21JYL',
+                '21JYM','21JYN','21JZM','21JZN','21KXP','21KYP','21KYQ',
+                '21KYR','21KYS','21KZP','21KZQ','21KZR','21KZS','22JBN',
+                '22JBP','22JBQ','22JBR','22JBS','22JBT','22JCQ','22JCR',
+                '22JCS','22JCT','22KBA','22KBU','22KBV','22KCA','22KCB',
+                '22KCU','22KCV','22KDA','22KDB','22KDC','22KDD','22KDE',
+                '22KDV','22KEE','22KDU',
+
+        ],
+        '138': [
+                '22JGP','22JGQ','22JHT','22KHA','22KHU','22KHV','23JKN',
+                '23JLN','23KKP','23KKQ','23KKR','23KLP','23KLQ','23KLR',
+                '23KLS','23KLT','23KMP','23KMQ','23KMR','23KMS','23KMT',
+                '23KMU','23KNQ','23KNR','23KNS','23KNT','23KNU','23KPA',
+                '23KPR','23KPS','23KPT','23KPU','23KPV','23KQA',
+
+        ],
+        '9' : [
+               '24LZQ','25LBK','25MCM','25MCN','24LZP',
+        ],
+       '95' : [
+                '23KNQ','23KNR','23KNS','23KNT','23KPA','23KPQ','23KPR',
+                '23KPS','23KPT','23KPU','23KPV','23KQA','23KQB','23KQQ',
+                '23KQR','23KQS','23KQT','23KQU','23KQV','23KRA','23KRB',
+                '23KRQ','23KRR','23KRS','23KRT','23KRU','23KRV','23LRC',
+                '24KTA','24KTB','24KTC','24KTD','24KTE','24KTF','24KTG',
+                '24KTV','24KUD','24KUE','24KUF','24KUG','24LTH','24LUH',
+                '24LVJ','24LVK',
+        ],
+       '24' : [
+                '21KXP','21KXQ','21KYP','21KYQ','21KYR','21KZR','21KZS',
+
         ],
        '38' : [
                 '22JDM','22JDN','22JDP','22JDQ','22JEM','22JEN','22JEP',
@@ -91,19 +125,10 @@ dictArqRegMAtla = {
                 '22KFV','22KGA','22KGB','22KGC','22KGD','22KGE','22KGU',
                 '22KGV','22KHA','22KHB','22KHC','22KHD','22KHU','22KHV',
                 '23JKN','23KKP','23KKQ','23KKR','23KKS','23KKT','23KKU',
-                '23KLP','23KLQ','23KLR','23KLS','23KLT'
+                '23KLP','23KLQ','23KLR','23KLS','23KLT',
+
         ],
-        '52': [               
-               '23KQR','23KRQ','23KRR','23KRS','23KRT','23KRU','24KTA',
-               '24KTB','24KTC','24KTD','24KTE','24KTF','24KTV','24KUB',
-               '24KUC','24KUD','24KUE','24KUF','24KUG','24KVD','24KVE',
-               '24KVF','24KVG','24KWF','24LUH','24LUJ','24LUK','24LVH',
-               '24LVJ','24LVK','24LVL','24LVM','24LWH','24LWJ','24LWK',
-               '24LWL','24LWM','24LWN','24LXM','24LXN','24LXP','24LYN',
-               '24LYP','24LYQ','24LYR','24LZQ','24LZR','24MZU','24MZV',
-               '25MBP','25MBQ','23KRV','23KQQ'
-        ],
-        '81': [
+       '81' : [
                 '21JYH','21JZM','22JBM','22JBN','22JBP','22JBQ','22JBR',
                 '22JBS','22JCM','22JCN','22JCP','22JCQ','22JCR','22JCS',
                 '22JCT','22JDM','22JDN','22JDP','22JDQ','22JDR','22JDS',
@@ -112,37 +137,37 @@ dictArqRegMAtla = {
                 '22KDB','22KDC','22KDD','22KDE','22KDU','22KDV','22KEA',
                 '22KEB','22KEC','22KED','22KEE','22KEU','22KEV','22KFA',
                 '22KFB','22KFC','22KFD','22KFE','22KFF','22KFU','22KFV',
-                '22KGA','22KGB','22KGC','22KGD','22KGE','22KGF','22JEM'
-        ],
-        '95' : [
-                '23KNQ','23KNR','23KNS','23KNT','23KPA','23KPQ','23KPR',
-                '23KPS','23KPT','23KPU','23KPV','23KQA','23KQB','23KQQ',
-                '23KQR','23KQS','23KQT','23KQU','23KQV','23KRA','23KRB',
-                '23KRQ','23KRR','23KRS','23KRT','23KRU','23KRV','23LQC',
-                '23LRC','23LRD','24KTA','24KTB','24KTC','24KTD','24KTE',
-                '24KTF','24KTG','24KTV','24KUD','24KUE','24KUF','24KUG',
-                '24LTH','24LTJ','24LUH','24LUJ','24LUK','24LUL','24LVJ',
-                '24LVK','24LVL','24LVM'
-        ],
-        '124' : [
-                '21JXH','21JXJ','21JXK','21JYH','21JYJ','21JYK','21JYL',
-                '21JYM','21JYN','21JZM','21JZN','21KXP','21KYP','21KYQ',
-                '21KYR','21KYS','21KZP','21KZQ','21KZR','21KZS','22JBN',
-                '22JBP','22JBQ','22JBR','22JBS','22JBT','22JCQ','22JCR',
-                '22JCS','22JCT','22KBA','22KBU','22KBV','22KCA','22KCB',
-                '22KCU','22KCV','22KDA','22KDB','22KDC','22KDD','22KDE',
-                '22KDV','22KEE','22KDU'
-        ],
-        '138': [
-                '22JGP','22JGQ','22JHT','22KHA','22KHU','22KHV','23JKN',
-                '23JLN','23KKP','23KKQ','23KKR','23KLP','23KLQ','23KLR',
-                '23KLS','23KLT','23KMP','23KMQ','23KMR','23KMS','23KMT',
-                '23KMU','23KNQ','23KNR','23KNS','23KNT','23KNU','23KPA',
-                '23KPR','23KPS','23KPT','23KPU','23KPV','23KQA'
-        ]      
+                '22KGA','22KGB','22KGC','22KGD','22KGE','22KGF','22JEM',
+
+        ]
        
 }
 
+dictArqRegPampa = {
+        '124': [
+               '21HYE','21JWF','21JWG','21JWH','21JWJ','21JXF','21JXG',
+               '21JXH','21JXJ','21JXK','21JYF','21JYG','21JYH','21JYJ',
+               '21JYK','22HBK','22JBL','22JBM','22JBN','22JBP','22JBQ',
+
+        ],
+        '24' : [
+               '21JVG','21JVH','21JWG','21JWH','21JWJ','21JXH','21JXJ',
+
+        ],
+        '38': [
+               '22JDM','22JDN','22JEL','22JEM','22JEN','22HCJ','22HCK',
+               '22HDK','22JCL','22JDL',
+
+        ],
+        '81' : [
+               '21HYE','21JYF','21JYG','21JYH','22HBH','22HBJ','22HBK',
+               '22HCH','22HCJ','22HCK','22HDK','22JBL','22JBM','22JBN',
+               '22JBP','22JBQ','22JCL','22JCM','22JCN','22JCP','22JCQ',
+               '22JDL','22JDM','22JDN',
+ 
+        ]
+       
+}
 
 
 dictArqRegCaat ={
@@ -207,6 +232,12 @@ dictArqRegCaat ={
 # }
 
 imgRefCaat = 'COPERNICUS/S2_SR/20200809T131249_20200809T131246_T23MQP'
+
+imgRefPan = ''
+
+imgRefMatAtl = ''
+
+imgRefPampa = ''
 
 
 # lsAllTiles = []
