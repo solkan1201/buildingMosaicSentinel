@@ -175,9 +175,9 @@ class ClassCalcIndicesSpectral(object):
         
         for band in self.options['bandas']:
 
-            imgTemp = self.equalize(image, band, self.geomet)
+            imgTemp = self.equalize(image.select(band), band, self.geomet)
             
-            imgTemp = imgTemp.toUint16()#.clip(self.geomet)
+            imgTemp = imgTemp.rename(band).toUint16()#.clip(self.geomet)
 
             matching = matching.addBands(imgTemp)
 
@@ -794,7 +794,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
 
             geometDiv = gradeDiv.filter(ee.Filter.eq('label', tile + '_' + lado)).geometry()
             gradeInGeo = geomet.intersection(geometDiv)            
-            gradeInter = gradeInGeo.intersection(limiteCaat)
+            gradeInter = ee.Geometry(gradeInGeo.intersection(limiteCaat))
             
             areaInt = gradeInter.area(1).getInfo()
             print("area #### {} ####".format(areaInt))
@@ -811,6 +811,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                 try:
                 
                     newDatsetDiv = newDataset.map(lambda image: image.clip(gradeInter))
+                    newDatsetDiv = newDataset.map(lambda image: image.set('system:footprint', gradeInter)) 
                     numImg = newDataset.size()#.getInfo()      
                     
                     operadorMosaic.geomet = gradeInter
@@ -818,7 +819,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                     ## remoção de Nuvens        
                     #  matchiong histogram 
                     newDatsetDiv = newDatsetDiv.map(lambda image: operadorMosaic.match_Images(image))
-                    print(newDataset.first().bandNames().getInfo())
+                    # print(newDataset.first().bandNames().getInfo())
                     ## Clac
                     # print("PROCENSANDO {} IMAGENS NA IMAGECOLLECTION".format(newDatsetDiv.size().getInfo()))
                     for cc, bnd_indece in enumerate(lsBND_ind):

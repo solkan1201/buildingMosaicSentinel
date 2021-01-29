@@ -316,7 +316,7 @@ class ClassCalcIndicesSpectral(object):
     
     def agregateBandsIndexNDVI(self, img):
     
-        ndviImg = img.expression("float(b('B8') - b('B12')) / (b('B8') + b('B12'))")\
+        ndviImg = img.expression("float(b('B8') - b('B4')) / (b('B8') + b('B4'))")\
                                 .add(1).multiply(10000).rename(['ndvi'])       
 
         # return img.addBands(ndviImg)
@@ -813,7 +813,8 @@ for orbNo, lsTiles in tiles_Orb.dictArqRegOther.items():
                             params['start'], params['end']).filter(
                                     ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
                                         ee.Filter.eq('MGRS_TILE', tile)).filter(
-                                            ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).sort(
+                                            ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).filter(
+                                               ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 15)).sort(
                                                 'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
 
             for lado in ['A', 'B']:
