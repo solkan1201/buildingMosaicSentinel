@@ -115,7 +115,7 @@ class ClassCalcIndicesSpectral(object):
         #Histogram equalization start:      
             
         optRed = {
-            'reducer': ee.Reducer.histogram(maxBuckets= 10000),
+            'reducer': ee.Reducer.histogram(maxBuckets= 20000),
             'geometry': geomet,
             'scale': 10,
             'maxPixels': 1e13,
@@ -175,9 +175,9 @@ class ClassCalcIndicesSpectral(object):
         
         for band in self.options['bandas']:
 
-            imgTemp = self.equalize(image.clip(self.geomet), band, self.geomet)
+            imgTemp = self.equalize(image.select(band), band, self.geomet)
             
-            imgTemp = imgTemp.toUint16()#.clip(self.geomet)
+            imgTemp = imgTemp.rename(band).toUint16()#.clip(self.geomet)
 
             matching = matching.addBands(imgTemp)
 
@@ -309,7 +309,7 @@ class ClassCalcIndicesSpectral(object):
     
     def agregateBandsIndexNDVI(self, img):
     
-        ndviImg = img.expression("float(b('B8') - b('B12')) / (b('B8') + b('B12'))")\
+        ndviImg = img.expression("float(b('B8') - b('B4')) / (b('B8') + b('B4'))")\
                                 .add(1).multiply(10000).rename(['ndvi'])       
 
         # return img.addBands(ndviImg)
@@ -640,7 +640,7 @@ params = {
     "mes": None,
     "ano": 2020,
     "bandasAll": ['B2','B3', 'B4', 'B8', 'B11', 'B12'],   
-    "assetLimBra": 'users/CartasSol/shapes/brasil_manual',  
+    "assetLimBra": 'users/CartasSol/shapes/Brasil_Manual',  
     "idassetOut": 'users/Tarefa01_MAPBIOMAS/teste_alerta_caatinga/ver1/', 
     "gradeS2Corr": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeSent_IC_Caat',  
     "gradeS2Div": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeNordeC',    
@@ -657,8 +657,8 @@ params = {
     'conta' : {
         '0':  'caatinga01',
         '16': 'caatinga02',
-        # '16': 'caatinga03',
-        '32': 'caatinga04',
+        '32': 'caatinga03',
+        # '32': 'caatinga04',
         '42': 'caatinga05',        
         '56': 'solkan1201',
         '68': 'diegoGmail',
@@ -786,15 +786,16 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                         params['start'], params['end']).filter(
                                 ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
                                     ee.Filter.eq('MGRS_TILE', tile)).filter(
-                                        ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).sort(
+                                        ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).filter(
+                                        ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 15)).sort(
                                             'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
 
         for lado in ['A', 'B']:
 
             geometDiv = gradeDiv.filter(ee.Filter.eq('label', tile + '_' + lado)).geometry()
-            gradeInter = geomet.intersection(geometDiv)            
-            gradeInter = gradeInter.intersection(limiteCaat)
-            gradeInter = ee.Geometry(gradeInter)
+            gradeInGeo = geomet.intersection(geometDiv)            
+            gradeInter = ee.Geometry(gradeInGeo.intersection(limiteCaat))
+            
             areaInt = gradeInter.area(1).getInfo()
             print("area #### {} ####".format(areaInt))
             
@@ -810,6 +811,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                 try:
                 
                     newDatsetDiv = newDataset.map(lambda image: image.clip(gradeInter))
+                    newDatsetDiv = newDataset.map(lambda image: image.set('system:footprint', gradeInter)) 
                     numImg = newDataset.size()#.getInfo()      
                     
                     operadorMosaic.geomet = gradeInter
@@ -817,7 +819,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                     ## remoção de Nuvens        
                     #  matchiong histogram 
                     newDatsetDiv = newDatsetDiv.map(lambda image: operadorMosaic.match_Images(image))
-                    print(newDataset.first().bandNames().getInfo())
+                    # print(newDataset.first().bandNames().getInfo())
                     ## Clac
                     # print("PROCENSANDO {} IMAGENS NA IMAGECOLLECTION".format(newDatsetDiv.size().getInfo()))
                     for cc, bnd_indece in enumerate(lsBND_ind):

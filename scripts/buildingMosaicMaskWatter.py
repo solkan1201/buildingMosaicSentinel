@@ -316,7 +316,7 @@ class ClassCalcIndicesSpectral(object):
     
     def agregateBandsIndexNDVI(self, img):
     
-        ndviImg = img.expression("float(b('B8') - b('B12')) / (b('B8') + b('B12'))")\
+        ndviImg = img.expression("float(b('B8') - b('B4')) / (b('B8') + b('B4'))")\
                                 .add(1).multiply(10000).rename(['ndvi'])       
 
         # return img.addBands(ndviImg)
@@ -764,12 +764,14 @@ else:
 
 gradeS2 = ee.FeatureCollection(params['gradeS2Corr'])
 gradeDiv = ee.FeatureCollection(params['gradeS2Div'])
-limiteCaat = ee.FeatureCollection(params["assetLimBra"]).filter(ee.Filter.eq('codiso3166', 'BRA'))
+limiteCaat = ee.FeatureCollection(params["assetLimBra"])# .filter(ee.Filter.eq('codiso3166', 'BRA'))
+
+# https://code.earthengine.google.com/07864e01db2f7c322ed5db86106e6a39
 # binarisar para a classe de interesse o mapa de Mapbiomas ultimo ano
 imgClass = ee.Image(params["assetMapbiomas"]).select("classification_2019")  
 imgClass = imgClass.eq(33) # classe de agua com pixels = 1 o resto = 0
 # selecionando uam borda maior do espelho de agua 
-imgClass = imgClass.focal_min(3).focal_max(5)
+imgClass = imgClass.focal_min(2, 'square').focal_max(3,'square')
 
 datasetCloudS2 = ee.ImageCollection('COPERNICUS/S2_CLOUD_PROBABILITY')\
     .filterDate(params['start'], params['end'])
@@ -813,7 +815,8 @@ for orbNo, lsTiles in tiles_Orb.dictArqRegOther.items():
                             params['start'], params['end']).filter(
                                     ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
                                         ee.Filter.eq('MGRS_TILE', tile)).filter(
-                                            ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).sort(
+                                            ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).filter(
+                                               ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 15)).sort(
                                                 'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
 
             for lado in ['A', 'B']:
