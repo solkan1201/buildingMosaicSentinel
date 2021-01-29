@@ -39,16 +39,9 @@ class ClassCalcIndicesSpectral(object):
     dictClassifRef = {}
 
     geomet = None
+    geomet = None
+    footprint = None   
 
-    imgUltima = None
-
-    maskMapbiomas = None
-
-    classificadorTrained = None
-
-    # cloudsMascara = True
-
-    imgColClouds = None
 
     def __init__(self, idRef):
 
@@ -580,6 +573,7 @@ params = {
     "mes": None,
     "ano": 2020,
     "bandasAll": ['B2','B3', 'B4', 'B8', 'B11', 'B12'],     
+    "assetLimBra": 'users/CartasSol/shapes/Brasil_Manual', 
     # "idassetOut": 'users/Tarefa01_MAPBIOMAS/teste_alerta_caatinga/ver1/', 
     "idassetOut": 'projects/mapbiomas-workspace/AMOSTRAS/col5/CAATINGA/MOSAIC',
     "gradeS2Corr": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeSent_IC_Caat',       
@@ -609,6 +603,14 @@ params = {
         # '45': 'ellen'        
     },
 }
+grades_Solape = [
+            '25LBL','25MBM','25MBN','25MBP','24KTG','24LTH','24LTJ','24LTK',
+            '24LTL','24LTM','24LTN','24LTP','24LTQ','24LTR','24MTA','24MTB',
+            '24MTS','24MTT','24MTU','24MTV','23KKB','23LKC','23LKD','23LKE',
+            '23LKF','23LKG','23LKH','23LKJ','23LKK','23LKL','23MKM','23MKN',
+            '23MKP','23MKQ','23MKR','23MKS','23MKT','23MKU'  #,'24MXU'
+        ]
+
 bandasInd = [
             'blue', 'green', 'red', 'nir', 'swir1', 'siwr2', 
             'evi', 'ratio', 'rvi', 'ndvi', 'ndwi', 'awei', 'iia', 
