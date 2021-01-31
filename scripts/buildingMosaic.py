@@ -350,9 +350,14 @@ class ClassCalcIndicesSpectral(object):
     
     def agregateBandsIndexLAI(self, img):
     
+        eviImg = img.expression(
+            "float(2.4 * (b('B8') - b('B4')) / (1 + b('B8') + b('B4')))").divide(10)\
+                .rename(['evi']) 
+        
+        
         laiImg = img.expression(
             "(3.618 * float(b('evi') - 0.118))").divide(10)\
-                .add(1).multiply(1000).rename(['lai'])     
+                .add(1).multiply(10000).rename(['lai'])     
     
         # return img.addBands(laiImg)
         return laiImg
@@ -481,8 +486,8 @@ class ClassCalcIndicesSpectral(object):
 
         co2FluxImg = ndviImg.multiply(spriImg).add(2).multiply(10000).rename(['co2flux'])   
         
-        # return img.addBands(co2FluxImg)
-        return co2FluxImg
+        return img.addBands(co2FluxImg)
+        # return co2FluxImg
 
 
 

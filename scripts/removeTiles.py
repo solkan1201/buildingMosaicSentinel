@@ -19,7 +19,7 @@ bandasInd = [
         ]
 
 dictArqReg = {  
-    '9':  ["25MBP"]
+    '9':  ["25MBP", "25LBL","25MBM","25MBN"]
     # '52': ["24MXA"],
     # '95': ["24LTJ","24LUK","24LUL","24LUN","24LVL","24MVB","24MWA","24MXA",],  
     # '95': ["23LRD","24LTJ","24LUJ","24LVM"],  
