@@ -158,12 +158,11 @@ class ClassCalcIndicesSpectral(object):
         return imgExport.classify(Classfimg, 'probability')\
             .classify(self.dictClassifRef[bnd], bnd)    
 
-    def match_Images(self, image):  
-
-        image = image.clip(self.geomet)
-        image = image.set('system:footprint', self.footprint)
+    def match_Images(self, image):         
 
         image = self.maskS2clouds(image)
+        image = image.clip(self.geomet)
+        # image = image.set('system:footprint', self.footprint)
         # image = self.strecht_Images(image, self.geomet)
 
         matching = ee.Image().uint16()    
@@ -757,7 +756,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                                     ee.Filter.eq('MGRS_TILE', tile)).filter(
                                         ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).filter(
                                         ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 15)).sort(
-                                            'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"])#.limit(limiteImg)
+                                            'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
 
         for lado in ['A', 'B']:
 
@@ -768,7 +767,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
             areaInt = gradeInter.area(1).getInfo()
             print("area #### {} ####".format(areaInt))
             footprint = gradeInter.getInfo()['coordinates']
-            print("footprint \n", footprint)
+            print("footprint com {} pontos para o poligon \n".format( len(footprint)))
             
             # print(gradeInter.getInfo())
             if (tile in grades_Solape and lado == 'B') or areaInt < 1000:
@@ -791,7 +790,22 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                     ## remoção de Nuvens        
                     #  matchiong histogram 
                     newDatsetDiv = newDataset.map(lambda image: operadorMosaic.match_Images(image))
-                    print(newDataset.first().bandNames().getInfo())
+                    # print(newDataset.first().bandNames().getInfo())
+                    
+                    
+                    # lsIndexSystem = newDataset.reduceColumns(ee.Reducer.toList(), ['system:index']).get('list').getInfo()
+                    # listImages = ee.List([])
+                    # for indSys in lsIndexSystem:
+                    #     print(" id === " + indSys)
+                    #     imgTemp = newDataset.filter(ee.Filter.eq('system:index', indSys)).first()
+                    #     imgTemp = operadorMosaic.match_Images(imgTemp)
+                    #     print(imgTemp.bandNames().getInfo())
+                    #     listImages = listImages.add(imgTemp)
+
+                    
+                    # listImages = ee.ImageCollection(listImages)            
+                    
+                    
                     ## Clac
                     # print("PROCENSANDO {} IMAGENS NA IMAGECOLLECTION".format(newDatsetDiv.size().getInfo()))
                     # for cc, bnd_indece in enumerate(lsBND_ind):
@@ -816,6 +830,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                     
                     for cc , bnd in  enumerate(lsBND_ind):
                         bndMedian =  reducer + bandasInd[cc]
+                        print("##### FEITO a banda " + bndMedian)
                         imgAnalitic = newDatsetDiv.select(bnd).median()#.toUint16()
                         imgAnalitic = ee.Image(imgAnalitic)
                         print("creando a imagem mediana")
@@ -870,7 +885,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                         nameAl = str(params['ano']) + '_' + str(orbNo)  + '_' + tile + '_' + lado + '_' + bndMedian + '_' + params['periodo']  #  
                         exportarClassification(imgAnalitic, nameAl, gradeInter)
 
-                    contador = gerenciador(contador)
+                        contador = gerenciador(contador)
                 
                 except:
 

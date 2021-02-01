@@ -19,12 +19,12 @@ lsTilesCaat = [
 ]
 dictArqReg = {    
         # '9': ["25MBP","25LBL","25MBM","25MBN"],   # 
-        # '52': ["24MXA","24MXV","24MYV","24MZV"],  # ,"24MXA","24LVM","24MXS","24LXQ","24MYU"
-        # '95': ["24LUN","24MVB","24MVS","24MWA","24MXA"],  
+        '52': ["24MXA","24MXV","24MYV","24MZV"],  # ,"24MXA","24LVM","24MXS","24LXQ","24MYU"
+        '95': ["24LUN","24MVB","24MVS","24MWA","24MXA"],  
 #         # "24LTJ","24LUK","24LUL","24LUN","24LVL","24MVB","24MWA","24MXA",
 #         #          "23LRD","24LTJ","24LUJ","24LVM","24MWU",
               
-        '138': ["24MTV","23LQE"] #"24MTA",
+        '138': ["23LQE"] #"24MTA","24MTV",
 #         #      "23MPM","23MQM","23MQN","23MRN","23MRQ","23MRR","23MRS",
 #         #     "23KPB","23LND","23LNE","23LNF","23LNG","23LNH","23MPN",
 #         #     "23LPG","23LPH","24MTA","24MTT","24MTU","24MTV","23LNC"

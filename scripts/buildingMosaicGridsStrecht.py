@@ -33,35 +33,16 @@ class ClassCalcIndicesSpectral(object):
         'degree2radian' : 0.01745
     }  
 
-    dictClassifRef = {}
-
     geomet = None
-
-    imgUltima = None
-
-    maskMapbiomas = None
-
-    classificadorTrained = None
-
-    # cloudsMascara = True
+    footprint = None 
 
     imgColClouds = None
 
-    def __init__(self, idRef):
+    def __init__(self, colClouds):
 
-        self.imgRef_ = ee.Image(idRef)
-        
-        geomRef = self.imgRef_.geometry()
-
-        self.imgRef_  = self.imgRef_.select(self.options['bandas'])              
-    
-        # self.imgRef_  = self.strecht_Images(self.imgRef_, geomRef)
-
-        # salvando em um diccionario as propiedades dde Classify da ref
-        self.equalizeRef(geomRef)
-
-        self.dem = ee.Image("USGS/SRTMGL1_003")
-
+        print("inicializando o objeto")
+        self.imgColClouds = colClouds
+       
 
     def maskS2clouds(self, imgP):
 
@@ -91,203 +72,34 @@ class ClassCalcIndicesSpectral(object):
 
         return imgTemp
 
-    def strecht_Images(self, image, geomet):        
+    def strecht_Images(self, image):   
+
+        image = self.maskS2clouds(image)
+        image = image.clip(self.geomet)     
 
         matching = ee.Image().int16()  
 
         for band in self.options['bandas']:
 
-            imgTemp = self.NomalizeImg(image, band, geomet)
+            imgTemp = self.NomalizeImg(image, band, self.geomet)
 
             imgTemp = imgTemp.rename(band)        
 
             matching = matching.addBands(imgTemp)
 
         matching = ee.Image.cat(matching.select(self.options['bandas'])) 
-
+        matching = matching.set('system:footprint', self.footprint)
         # matching = matching.set()       
 
         return matching
 
-    def getFC(self, image_, bnd, geomet):
-        
-        #Histogram equalization start:      
-            
-        optRed = {
-            'reducer': ee.Reducer.histogram(maxBuckets= 10000),
-            'geometry': geomet,
-            'scale': 10,
-            'maxPixels': 1e13,
-            'tileScale': 4
-            }
-
-        histo = image_.reduceRegion(**optRed)         
-
-        valsList = ee.List(ee.Dictionary(histo.get(bnd)).get('bucketMeans'))    
-
-        freqsList = ee.List(ee.Dictionary(histo.get(bnd)).get('histogram'))
-
-        cdfArray = ee.Array(freqsList).accum(0)
-
-        total = cdfArray.get([-1])
-
-        normalizedCdf = cdfArray.divide(total)
-
-        lists = valsList.zip(normalizedCdf.toList())
-
-        expLists = lists.reduce(ee.Reducer.toCollection(['dn', 'probability']))
-
-        return ee.FeatureCollection(expLists)
-    
-    def equalizeRef(self, geomR):
-
-        for bnd in self.options['bandas']:           
-
-            propertImgRef = self.getFC(self.imgRef_.select(bnd), bnd, geomR)        
-
-            ClassfImgRef = ee.Classifier.smileRandomForest(50).setOutputMode('REGRESSION')\
-                .train(features= propertImgRef, classProperty= 'dn', inputProperties= ['probability'])
-
-            self.dictClassifRef[bnd] = ClassfImgRef
-    
-    def equalize(self, image_, bnd, geomet):        
-
-        propertImg = self.getFC(image_.select(bnd), bnd, geomet)        
-
-        Classfimg = ee.Classifier.smileRandomForest(50).setOutputMode('REGRESSION')\
-            .train(features= propertImg, classProperty= 'probability', inputProperties= ['dn'])
-
-        imgExport = image_.select(bnd).rename('dn')
-
-        #print "ja rodou a classification"
-        # classifier from DigitalNivel   ---> probability  depois # classifier from probability   ---> DigitalNivel
-        
-        return imgExport.classify(Classfimg, 'probability')\
-            .classify(self.dictClassifRef[bnd], bnd)    
-
-    def match_Images(self, image):    
-
-        image = self.maskS2clouds(image)
-        # image = self.strecht_Images(image, self.geomet)
-
-        matching = ee.Image().uint16()    
-        
-        for band in self.options['bandas']:
-
-            imgTemp = self.equalize(image.clip(self.geomet), band, self.geomet)
-            
-            imgTemp = imgTemp.toUint16()#.clip(self.geomet)
-
-            matching = matching.addBands(imgTemp)
-
-        matching = ee.Image.cat(matching.select(self.options['bandas']))
-        matching = matching.set('system:footprint', self.geomet)
-        
-        return matching
     
     ######################################################################################
     ## // Function to calculate illumination condition (IC). Function by Patrick Burns ###
     ## // (pb463@nau.edu) and Matt Macander                                            ###
     ## // (mmacander@abrinc.com)                                                       ###
     ######################################################################################
-    def illuminationCondition(self, img):
-
-        geom = img.geometry().buffer(10000)
-        ### Extract image metadata about solar position  ##
-        SZ_rad = ee.Image.constant(ee.Number(img.get('MEAN_SOLAR_ZENITH_ANGLE'))
-                            ).multiply(3.14159265359).divide(180).clip(geom) 
-        SA_rad = ee.Image.constant(ee.Number(img.get('MEAN_SOLAR_AZIMUTH_ANGLE'))
-                            ).multiply(3.14159265359).divide(180).clip(geom)
-        
-        ####  Creat terrain layers ### 
-        slp = ee.Terrain.slope(dem).clip(geom)
-        slp_rad = ee.Terrain.slope(self.dem).multiply(3.14159265359).divide(180).clip(geom)
-        asp_rad = ee.Terrain.aspect(dem).multiply(3.14159265359).divide(180).clip(geom)
-
-        ###  Calculate the Illumination Condition (IC) ####
-        ###  slope part of the illumination condition  ####
-        cosZ = SZ_rad.cos().rename('cosZ')
-        cosS = slp_rad.cos().rename('cosS')        
-        slope_illumination = cosS.addBands(cosZ).expression(
-                                              "float(b('cosZ') * b('cosS'))")
-
-        sinZ = SZ_rad.sin().rename('sinZ')
-        sinS = slp_rad.sin()
-        cosAziDiff = (SA_rad.subtract(asp_rad)).cos().rename("cosAziDiff")
-        aspect_illumination = sinZ.addBands(sinS).addBands(cosAziDiff).expression(
-                                        "float(b('sinZ') * b('slope') * b('cosAziDiff'))") 
-        
-        ### full illumination condition (IC) ###
-        ic = slope_illumination.add(aspect_illumination)
-
-        ### Add IC to original image ###
-        img_plus_ic = ee.Image(img.addBands(ic).addBands(cosZ).addBands(cosS)
-                                  ).addBands(slp.rename('slope'))
-        
-        return img_plus_ic
-
-    # https://code.earthengine.google.com/c20fe3602e4a99107b999d95e57752d9
-    def illuminationCorrection(self, img):
-
-        props = img.toDictionary()
-        st = img.get('system:time_start')
-
-        img_plus_ic = img
-        mask1 = img_plus_ic.select('nir').gt(-0.1)
-        mask2 = img_plus_ic.select('slope').gte(5).And(
-                            img_plus_ic.select('IC').gte(0)).And(
-                            img_plus_ic.select('nir').gt(-0.1))
-        
-
-        img_plus_ic_mask2 = ee.Image(img_plus_ic.updateMask(mask2))
-
-        ### Specify Bands to topographically correct ###
-        bandList = ['blue','green','red','nir','swir1','swir2']
-        bandList = ['B2','B3','B4','B8','B11','B12']
-        compositeBands = img.bandNames()
-        nonCorrectBands = img.select(compositeBands.removeAll(bandList))
-
-        geom = ee.Geometry(img.get('system:footprint')).bounds().buffer(10000)
-
-
-        def apply_SCSccorr(band):
-
-            method = 'SCSc'
-            pmtroRed = {
-                'reducer': ee.Reducer.linearRegression(2,1), 
-                'geometry': ee.Geometry(img.geometry()), 
-                'scale': scale, 
-                'bestEffort': True,
-                'maxPixels': 1e10
-            }
-            
-            out =  ee.Image(1).addBands(img_plus_ic_mask2.select('IC', band))\
-                            .reduceRegion(pmtroRed)
-
-            fit = out.combine({"coefficients": ee.Array([[1],[1]])}, false)
-            
-            out_a = (ee.Array(fit.get('coefficients')).get([0,0]))
-            out_b = (ee.Array(fit.get('coefficients')).get([1,0]))
-            out_c = out_a.divide(out_b)
-
-            expression = "(( b('" + band + "')* (b('cosS') * b('cosZ') + b('outC'))) / (b('IC') + b('outC')))"
-
-            SCSc_output = img_plus_ic_mask2.addBands(ee.Image(out_c).rename('outC')).expression(expression)
-
-            return SCSc_output
-        
-        imgList = ee.Image().float()
-
-        for bnd in bandList:
-            tempIm = apply_SCSccorr(bnd)
-            imgList = imgList.addBands(ee.Image(tempIm))
-        
-        img_SCSccorr = imgList.select(bandList).addBands(img_plus_ic.select('IC'))
-        bandList_IC = ee.List(bandList).add('IC')
-        img_SCSccorr = img_SCSccorr.unmask(img_plus_ic.select(bandList_IC)).select(bandList)
-        
-        return img_SCSccorr.addBands(nonCorrectBands).set('system:time_start', st)
-
+    
 
     def agregateBandsIndexRATIO(self, img):
     
@@ -593,7 +405,8 @@ class ClassCalcIndicesSpectral(object):
 def exportarClassification(imgTransf, nameAl, geomet):
     
     # IdAsset = 'projects/mapbiomas-workspace/AMOSTRAS/col5/CAATINGA/MOSAIC/mosaics/' + nameAl 
-    IdAsset = 'users/mapbiomascaatinga05/mosaicSentinel2/' + nameAl
+    # IdAsset = 'users/mapbiomascaatinga05/mosaicSentinel2/' + nameAl
+    IdAsset = 'users/mapbiomascaatinga05/mosaicTestS2/'  + nameAl 
     print(" en id Asset:")
     print("   <> {}".format(IdAsset))
     
@@ -629,6 +442,7 @@ params = {
     "mes": None,
     "year": 2020,
     "bandasAll": ['B2','B3', 'B4', 'B8', 'B11', 'B12'],     
+    "assetLimBra": 'users/CartasSol/shapes/Brasil_Buffer3km',  
     "idassetOut": 'users/Tarefa01_MAPBIOMAS/teste_alerta_caatinga/ver1/', 
     "gradeS2Corr": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeSent_IC_Caat',  
     "gradeS2Div": 'projects/mapbiomas-arida/ALERTAS/auxiliar/shpGradeNordeC',    
@@ -664,19 +478,19 @@ grades_Solape = [
             '23MKP','23MKQ','23MKR','23MKS','23MKT','23MKU'
         ]
 bandasInd = [
-            'blue', 'green', 'red', 'nir', 'swir1', 'siwr2', 
-            'evi', 'ratio', 'rvi', 'ndvi', 'ndwi', 'awei', 'iia', 
-            'lai', 'gcvi', 'cvi', 'osavi', 'isoil', 'msi', 'wetness', 
-            'brightness', 'gvmi', 'spri', 'co2flux', 'gv', 'npv', 
-            'soil', 'ndfia', 'contrast'
+            'blue', 'green', 'red', 'nir', 'swir1', 'siwr2' 
+            # 'evi', 'ratio', 'rvi', 'ndvi', 'ndwi', 'awei', 'iia', 
+            # 'lai', 'gcvi', 'cvi', 'osavi', 'isoil', 'msi', 'wetness', 
+            # 'brightness', 'gvmi', 'spri', 'co2flux', 'gv', 'npv', 
+            # 'soil', 'ndfia', 'contrast'
         ]
 
 lsBND_ind = [
-            'B2', 'B3', 'B4', 'B8', 'B11', 'B12', 
-            'evi', 'ratio', 'rvi', 'ndvi', 'ndwi', 'awei', 'iia', 
-            'lai', 'gcvi', 'cvi', 'osavi', 'isoil', 'msi', 'wetness', 
-            'brightness', 'gvmi', 'spri', 'co2flux', 'gv', 'npv', 
-            'soil', 'ndfia', 'contrast'
+            'B2', 'B3', 'B4', 'B8', 'B11', 'B12'
+            # 'evi', 'ratio', 'rvi', 'ndvi', 'ndwi', 'awei', 'iia', 
+            # 'lai', 'gcvi', 'cvi', 'osavi', 'isoil', 'msi', 'wetness', 
+            # 'brightness', 'gvmi', 'spri', 'co2flux', 'gv', 'npv', 
+            # 'soil', 'ndfia', 'contrast'
         ]
 lsIndMin = []
 lsIndMax = []
@@ -708,18 +522,15 @@ else:
 
 gradeS2 = ee.FeatureCollection(params['gradeS2Corr'])
 gradeDiv = ee.FeatureCollection(params['gradeS2Div'])
+limiteCaat = ee.FeatureCollection(params["assetLimBra"])
 
-datasetSent2 = ee.ImageCollection('COPERNICUS/S2_SR')\
-    .filterDate(params['start'], params['end'])\
-    .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert']))\
-    .select(params["bandasAll"])
 
 datasetCloudS2 = ee.ImageCollection('COPERNICUS/S2_CLOUD_PROBABILITY')\
     .filterDate(params['start'], params['end'])
 
-print('Imagem de referencia \n ====> ' + tiles_Orb.imgRefCaat)
-operadorMosaic = ClassCalcIndicesSpectral(tiles_Orb.imgRefCaat)
-operadorMosaic.imgColClouds = datasetCloudS2
+
+operadorMosaic = ClassCalcIndicesSpectral(datasetCloudS2)
+# operadorMosaic.imgColClouds = datasetCloudS2
 
 
 reducer = '_median'
@@ -739,83 +550,72 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
         
         
         
-        newDataset = datasetSent2.filter(ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo)))\
-                                .filter(ee.Filter.eq('MGRS_TILE', tile))\
-                                .sort('CLOUDY_PIXEL_PERCENTAGE').limit(limiteImg)
+        newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
+                        params['start'], params['end']).filter(
+                                ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
+                                    ee.Filter.eq('MGRS_TILE', tile)).filter(
+                                        ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).filter(
+                                        ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 15)).sort(
+                                            'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
 
-        newDatsetDiv = newDataset.map(lambda image: image.clip(geomet))
-        numImg = newDataset.size()#.getInfo()      
+        print("numero de imagens {}".format(newDataset.size().getInfo()))
         
-        operadorMosaic.geomet = geomet
-        
-        ## remoção de Nuvens        
-        #  matchiong histogram 
-        newDatsetDiv = newDatsetDiv.map(lambda image: operadorMosaic.match_Images(image))
-        # print(newDataset.first().bandNames().getInfo())
-        ## Clac
+        for lado in ['A', 'B']:
 
-        for cc, bnd_indece in enumerate(lsBND_ind[:9]):
-
-            print("processando a banda " + bnd_indece)
+            geometDiv = gradeDiv.filter(ee.Filter.eq('label', tile + '_' + lado)).geometry()
+            gradeInGeo = geomet.intersection(geometDiv)            
+            gradeInter = ee.Geometry(gradeInGeo.intersection(limiteCaat))
+            del gradeInGeo
+            areaInt = gradeInter.area(1).getInfo()
+            print("area #### {} ####".format(areaInt))
+            footprint = gradeInter.getInfo()['coordinates']
+            print("footprint com {} pontos para o poligon \n".format( len(footprint[0])))
             
-            if bnd_indece not in ['B2', 'B3', 'B4', 'B8', 'B11', 'B12']:
-                newDatasetInd = newDatsetDiv.map(lambda image: operadorMosaic.CalculateIndice(image, bnd_indece))
-                # print(newDatasetInd.first().getInfo())
-                newDatasetInd = newDatasetInd.select(bnd_indece) 
+            # print(gradeInter.getInfo())
+            if (tile in grades_Solape and lado == 'B') or areaInt < 1000:
+                print("###############################################################")
+                print(" 🔰 lado B 🔰 da orbita __{}__ e tile __{}__ NÃO SERÁ PROCESSADO".format(orbNo, tile))
+                print("###############################################################")
+                continue           
             
             else:
-                newDatasetInd = newDatsetDiv.select(bnd_indece)
-                # print(newDatasetInd.first().getInfo())                    
-            
-            ##########################################
-            ########  Reducers Median cc  ############ 
-            print(bandasInd[cc])
-            reducer = 'median_'         
-            bndMedian =  reducer + bandasInd[cc]
-            
-            imgAnalitic = newDatasetInd.median().toUint16()
-            imgAnalitic = imgAnalitic.clip(geomet)
+                print("ntro")
+                
+                try:
+                    # newDatsetDiv = newDataset.map(lambda image: image.clip(gradeInter))
+                    # newDatsetDiv = newDataset.map(lambda image: image.set('system:footprint', footprint)) 
+                    print("====> enviandos a geometria limite e a lista de pontos limites #####")
+                    numImg = newDataset.size()#.getInfo()                       
+                    operadorMosaic.geomet = gradeInter
+                    operadorMosaic.footprint = footprint        
+                    ## remoção de Nuvens        
+                    #  matchiong histogram 
+                    newDatsetDiv = newDataset.map(lambda image: operadorMosaic.strecht_Images(image))
+                    # print(newDataset.first().bandNames().getInfo())
+                    ## Clac
+                    print("reduzindo a mediana")
+                    imgAnalitic = newDatsetDiv.median()     
+                    print(imgAnalitic.bandNames().getInfo())
+                    imgAnalitic = imgAnalitic.select(lsBND_ind)
+                    imgAnalitic = imgAnalitic.rename(bandasInd)
+                    
+                    print('Set properties to imagesss')
+                    # set properties
+                    # imgAnalitic = imgAnalitic.addBands(std_imgAnalitic)
+                    # imgAnalitic = imgAnalitic.clip(gradeInter)
+                    imgAnalitic = imgAnalitic.set('system:footprint', footprint)
+                    imgAnalitic = imgAnalitic.set('year', params['year'])
+                    imgAnalitic = imgAnalitic.set('MGRS_TILE', tile)
+                    imgAnalitic = imgAnalitic.set('SENSING_ORBIT_NUMBER', orbNo)
+                    imgAnalitic = imgAnalitic.set('NUM_IMAGENS', numImg)
+                    # imgAnalitic = imgAnalitic.set('banda', bndMedian)
+                    imgAnalitic = imgAnalitic.set('periodo', params['periodo'])  
+                    imgAnalitic = imgAnalitic.set('lado', lado)          
 
-            print("bandas seleccionadas {}".format(imgAnalitic.bandNames().getInfo()))
+                    # save imagens 
+                    nameAl = str(params['year']) + '_' + str(orbNo)  + '_' + tile + '_' + lado + '_' + params['periodo']  
+                    exportarClassification(imgAnalitic, nameAl, geomet)
 
-            imgAnalitic = imgAnalitic.rename(bndMedian)
-            # print(imgAnalitic.bandNames().getInfo())
+                except:
 
-            ########################################
-            ####### Reducers Desvio Padrão   #######
-            # reducer = 'stdDev_'       
-            # lsstdDev = [reducer + ibnd for ibnd in bandasInd]
-            # std_imgAnalitic = newDatasetInd.reduce(
-            #                         reducer= ee.Reducer.stdDev(), 
-            #                         parallelScale= 2).toUint16()
-
-            # ## Reducers Minimum
-            # reducer = 'min_'
-            # for bnd in lsIndMin:
-
-            #     bandTemp = ee.Image(newDatasetInd.select(bnd).min()).rename(reducer + bnd)
-            #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
-            #     imgAnalitic = imgAnalitic.addBands(bandTemp)
-            
-            # ## Reducers Maximum
-            # reducer = 'max_'
-            # for bnd in lsIndMax:
-
-            #     bandTemp = ee.Image(newDatasetInd.select(bnd).max()).rename(reducer + bnd)
-            #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
-            #     imgAnalitic = imgAnalitic.addBands(bandTemp)
-            
-            # set properties
-            # imgAnalitic = imgAnalitic.addBands(std_imgAnalitic)
-            imgAnalitic = imgAnalitic.clip(geomet)
-            imgAnalitic = imgAnalitic.set('system:footprint', geomet)
-            imgAnalitic = imgAnalitic.set('year', params['year'])
-            imgAnalitic = imgAnalitic.set('MGRS_TILE', tile)
-            imgAnalitic = imgAnalitic.set('SENSING_ORBIT_NUMBER', orbNo)
-            imgAnalitic = imgAnalitic.set('NUM_IMAGENS', numImg)
-            imgAnalitic = imgAnalitic.set('banda', bndMedian)
-            imgAnalitic = imgAnalitic.set('periodo', params['periodo'])            
-
-            # save imagens 
-            nameAl = str(params['year']) + '_' + str(orbNo)  + '_' + tile + '_' + bndMedian + '_' + params['periodo']
-            exportarClassification(imgAnalitic, nameAl, geomet)
+                    print("#############🔰 ALGO DEU ERRO NO PROCESSO    🔰######################")

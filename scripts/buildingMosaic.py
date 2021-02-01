@@ -158,12 +158,11 @@ class ClassCalcIndicesSpectral(object):
         return imgExport.classify(Classfimg, 'probability')\
             .classify(self.dictClassifRef[bnd], bnd)    
 
-    def match_Images(self, image):  
-
-        image = image.clip(self.geomet)
-        image = image.set('system:footprint', self.footprint)
+    def match_Images(self, image):         
 
         image = self.maskS2clouds(image)
+        image = image.clip(self.geomet)
+        image = image.set('system:footprint', self.footprint)
         # image = self.strecht_Images(image, self.geomet)
 
         matching = ee.Image().uint16()    
@@ -601,8 +600,9 @@ class ClassCalcIndicesSpectral(object):
 
 def exportarClassification(imgTransf, nameAl, geomGrade):
     
-    IdAsset = 'projects/mapbiomas-workspace/AMOSTRAS/col5/CAATINGA/MOSAIC/mosaics/' + nameAl 
+    # IdAsset = 'projects/mapbiomas-workspace/AMOSTRAS/col5/CAATINGA/MOSAIC/mosaics/' + nameAl 
     # IdAsset = 'users/mapbiomascaatinga05/mosaicSentinel2/' + nameAl
+    IdAsset = 'users/mapbiomascaatinga05/mosaicTestS2/'  + nameAl 
     print(" Salvando en id Asset:")
     print("   <> {}".format(IdAsset))
     
@@ -712,19 +712,19 @@ grades_Solape = [
             '23MKP','23MKQ','23MKR','23MKS','23MKT','23MKU'  #,'24MXU'
         ]
 bandasInd = [
-            'blue', 'green', 'red', 'nir', 'swir1', 'siwr2', 
-            'evi', 'ratio', 'rvi', 'ndvi', 'ndwi', 'awei', 'iia', 
-            'lai', 'gcvi', 'cvi', 'osavi', 'isoil', 'msi', 'wetness', 
-            'brightness', 'gvmi', 'spri', 'co2flux', 'gv', 'npv', 
-            'soil', 'ndfia', 'contrast'
+            'blue', 'green', 'red', 'nir', 'swir1', 'siwr2' #, 
+            # 'evi', 'ratio', 'rvi', 'ndvi', 'ndwi', 'awei', 'iia', 
+            # 'lai', 'gcvi', 'cvi', 'osavi', 'isoil', 'msi', 'wetness', 
+            # 'brightness', 'gvmi', 'spri', 'co2flux', 'gv', 'npv', 
+            # 'soil', 'ndfia', 'contrast'
         ]
 
 lsBND_ind = [
-            'B2', 'B3', 'B4', 'B8', 'B11', 'B12', 
-            'evi', 'ratio', 'rvi', 'ndvi', 'ndwi', 'awei', 'iia', 
-            'lai', 'gcvi', 'cvi', 'osavi', 'isoil', 'msi', 'wetness', 
-            'brightness', 'gvmi', 'spri', 'co2flux', 'gv', 'npv', 
-            'soil', 'ndfia', 'contrast'
+            'B2', 'B3', 'B4', 'B8', 'B11', 'B12'#, 
+            # 'evi', 'ratio', 'rvi', 'ndvi', 'ndwi', 'awei', 'iia', 
+            # 'lai', 'gcvi', 'cvi', 'osavi', 'isoil', 'msi', 'wetness', 
+            # 'brightness', 'gvmi', 'spri', 'co2flux', 'gv', 'npv', 
+            # 'soil', 'ndfia', 'contrast'
         ]
 lsIndMin = []
 lsIndMax = []
@@ -767,9 +767,9 @@ operadorMosaic = ClassCalcIndicesSpectral(tiles_Orb.imgRefCaat)
 operadorMosaic.imgColClouds = datasetCloudS2
 
 contador = 0
-reducer = '_median'
+# reducer = '_median'
 # lsMedian = [ibnd + reducer for ibnd in bandasInd]
-limiteImg = 7
+limiteImg = 12
 
 for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
 
@@ -829,7 +829,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                     #     print("✅ processando a banda 🔰 " + bnd_indece + " 🔰")
                         
                     #     if bnd_indece not in ['B2', 'B3', 'B4', 'B8', 'B11', 'B12']:
-                    newDatasetInd = newDatsetDiv.map(lambda image: operadorMosaic.CalculateIndice(image, bnd_indece))
+                    # newDatasetInd = newDatsetDiv.map(lambda image: operadorMosaic.CalculateIndice(image, bnd_indece))
                         #     # print(newDatasetInd.first().getInfo())
                         #     newDatasetInd = newDatasetInd.select(bnd_indece) 
                         
@@ -839,59 +839,59 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                         
                         ##########################################
                         ########  Reducers Median cc  ############ 
-                        print(bandasInd[cc])
-                        reducer = 'median_'         
-                        bndMedian =  reducer + bandasInd[cc]
+                        # print(bandasInd[cc])
+                        # reducer = 'median_'         
+                        # bndMedian =  reducer + bandasInd[cc]
                         
-                        imgAnalitic = newDatasetInd.median().toUint16()
-                        imgAnalitic = imgAnalitic.clip(gradeInter)
+                    imgAnalitic = newDatsetDiv.median()#.toUint16()
+                    # imgAnalitic = imgAnalitic.clip(gradeInter)
 
-                        # print("bandas seleccionadas {}".format(imgAnalitic.bandNames().getInfo()))
+                    # print("bandas seleccionadas {}".format(imgAnalitic.bandNames().getInfo()))
+                    imgAnalitic = imgAnalitic.select(lsBND_ind)
+                    imgAnalitic = imgAnalitic.rename(bandasInd)
+                    # print(imgAnalitic.bandNames().getInfo())
 
-                        imgAnalitic = imgAnalitic.rename(bndMedian)
-                        # print(imgAnalitic.bandNames().getInfo())
+                    ########################################
+                    ####### Reducers Desvio Padrão   #######
+                    # reducer = 'stdDev_'       
+                    # lsstdDev = [reducer + ibnd for ibnd in bandasInd]
+                    # std_imgAnalitic = newDatasetInd.reduce(
+                    #                         reducer= ee.Reducer.stdDev(), 
+                    #                         parallelScale= 2).toUint16()
 
-                        ########################################
-                        ####### Reducers Desvio Padrão   #######
-                        # reducer = 'stdDev_'       
-                        # lsstdDev = [reducer + ibnd for ibnd in bandasInd]
-                        # std_imgAnalitic = newDatasetInd.reduce(
-                        #                         reducer= ee.Reducer.stdDev(), 
-                        #                         parallelScale= 2).toUint16()
+                    # ## Reducers Minimum
+                    # reducer = 'min_'
+                    # for bnd in lsIndMin:
 
-                        # ## Reducers Minimum
-                        # reducer = 'min_'
-                        # for bnd in lsIndMin:
+                    #     bandTemp = ee.Image(newDatasetInd.select(bnd).min()).rename(reducer + bnd)
+                    #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
+                    #     imgAnalitic = imgAnalitic.addBands(bandTemp)
+                    
+                    # ## Reducers Maximum
+                    # reducer = 'max_'
+                    # for bnd in lsIndMax:
 
-                        #     bandTemp = ee.Image(newDatasetInd.select(bnd).min()).rename(reducer + bnd)
-                        #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
-                        #     imgAnalitic = imgAnalitic.addBands(bandTemp)
-                        
-                        # ## Reducers Maximum
-                        # reducer = 'max_'
-                        # for bnd in lsIndMax:
+                    #     bandTemp = ee.Image(newDatasetInd.select(bnd).max()).rename(reducer + bnd)
+                    #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
+                    #     imgAnalitic = imgAnalitic.addBands(bandTemp)
+                    
+                    # set properties
+                    # imgAnalitic = imgAnalitic.addBands(std_imgAnalitic)
+                    imgAnalitic = imgAnalitic.clip(gradeInter)
+                    imgAnalitic = imgAnalitic.set('system:footprint', gradeInter)
+                    imgAnalitic = imgAnalitic.set('year', params['ano'])
+                    imgAnalitic = imgAnalitic.set('MGRS_TILE', tile)
+                    imgAnalitic = imgAnalitic.set('SENSING_ORBIT_NUMBER', orbNo)
+                    imgAnalitic = imgAnalitic.set('NUM_IMAGENS', numImg)
+                    # imgAnalitic = imgAnalitic.set('banda', bndMedian)
+                    imgAnalitic = imgAnalitic.set('periodo', params['periodo'])
+                    imgAnalitic = imgAnalitic.set('lado', lado)
 
-                        #     bandTemp = ee.Image(newDatasetInd.select(bnd).max()).rename(reducer + bnd)
-                        #     bandTemp = bandTemp.add(1).multiply(10000).toUint16()
-                        #     imgAnalitic = imgAnalitic.addBands(bandTemp)
-                        
-                        # set properties
-                        # imgAnalitic = imgAnalitic.addBands(std_imgAnalitic)
-                        imgAnalitic = imgAnalitic.clip(gradeInter)
-                        imgAnalitic = imgAnalitic.set('system:footprint', gradeInter)
-                        imgAnalitic = imgAnalitic.set('year', params['ano'])
-                        imgAnalitic = imgAnalitic.set('MGRS_TILE', tile)
-                        imgAnalitic = imgAnalitic.set('SENSING_ORBIT_NUMBER', orbNo)
-                        imgAnalitic = imgAnalitic.set('NUM_IMAGENS', numImg)
-                        imgAnalitic = imgAnalitic.set('banda', bndMedian)
-                        imgAnalitic = imgAnalitic.set('periodo', params['periodo'])
-                        imgAnalitic = imgAnalitic.set('lado', lado)
+                    # save imagens 
+                    nameAl = str(params['ano']) + '_' + str(orbNo)  + '_' + tile + '_' + lado + '_' + params['periodo']   # bndMedian + '_' + 
+                    exportarClassification(imgAnalitic, nameAl, gradeInter)
 
-                        # save imagens 
-                        nameAl = str(params['ano']) + '_' + str(orbNo)  + '_' + tile + '_' + lado + '_' + bndMedian + '_' + params['periodo']
-                        exportarClassification(imgAnalitic, nameAl, gradeInter)
-
-                        contador = gerenciador(contador)
+                    contador = gerenciador(contador)
                 
                 except:
 
