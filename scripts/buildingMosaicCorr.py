@@ -624,8 +624,8 @@ params = {
         '0':  'caatinga01',
         '16': 'caatinga02',
         '32': 'caatinga03',
-        # '32': 'caatinga04',
-        '42': 'caatinga05',        
+        '42': 'caatinga04',
+        # '42': 'caatinga05',        
         '56': 'solkan1201',
         '68': 'diegoGmail',
         '80': 'rodrigo',
@@ -732,12 +732,12 @@ print('Imagem de referencia \n ====> ' + tiles_Orb.imgRefCaat)
 operadorMosaic = ClassCalcIndicesSpectral(tiles_Orb.imgRefCaat)
 operadorMosaic.imgColClouds = datasetCloudS2
 
-contador = 0
+contador = 30
 # reducer = '_median'
 # lsMedianO = ['median_'  + ibnd for ibnd in lsBND_ind]
 # lsMedian = ['median_'  + ibnd for ibnd in bandasInd]
 
-limiteImg = 7
+limiteImg = 5
 
 for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
 
@@ -766,8 +766,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
             del gradeInGeo
             areaInt = gradeInter.area(1).getInfo()
             print("area #### {} ####".format(areaInt))
-            footprint = gradeInter.getInfo()['coordinates']
-            print("footprint com {} pontos para o poligon \n".format( len(footprint)))
+            
             
             # print(gradeInter.getInfo())
             if (tile in grades_Solape and lado == 'B') or areaInt < 1000:
@@ -779,7 +778,8 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
             else:
                 print("ntro")
                 try:
-                
+                    footprint = gradeInter.getInfo()['coordinates']
+                    print("footprint com {} pontos para o poligon \n".format( len(footprint)))
                     # newDatsetDiv = newDataset.map(lambda image: image.clip(gradeInter))
                     # newDatsetDiv = newDataset.map(lambda image: image.set('system:footprint', footprint)) 
                     print("====> enviandos a geometria limite e a lista de pontos limites #####")

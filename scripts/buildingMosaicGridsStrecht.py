@@ -77,7 +77,7 @@ class ClassCalcIndicesSpectral(object):
         image = self.maskS2clouds(image)
         image = image.clip(self.geomet)     
 
-        matching = ee.Image().int16()  
+        matching = ee.Image().uint16()  
 
         for band in self.options['bandas']:
 
@@ -477,6 +477,7 @@ grades_Solape = [
             '23LKF','23LKG','23LKH','23LKJ','23LKK','23LKL','23MKM','23MKN',
             '23MKP','23MKQ','23MKR','23MKS','23MKT','23MKU'
         ]
+listException = ['52_24MXA']
 bandasInd = [
             'blue', 'green', 'red', 'nir', 'swir1', 'siwr2' 
             # 'evi', 'ratio', 'rvi', 'ndvi', 'ndwi', 'awei', 'iia', 
@@ -541,6 +542,8 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
 
     for tile in lsTiles:  
 
+        item = str(orbNo) + '_' + tile
+
         print("Processando imagens de orbita  📡 {} >>  e tile 📡 {} >> ".format(orbNo, tile))
 
         geomet = gradeS2.filter(ee.Filter.And(
@@ -548,15 +551,23 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                                             ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))
                                         )).geometry() 
         
-        
-        
-        newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
+        if item in listException:
+            newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
                         params['start'], params['end']).filter(
                                 ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
                                     ee.Filter.eq('MGRS_TILE', tile)).filter(
-                                        ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).filter(
-                                        ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 15)).sort(
+                                        ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).sort(
                                             'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
+            # https://code.earthengine.google.com/2d3d0ac8c8d1c9e0a8c9a2356495f3a1
+        
+        else:
+            newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
+                            params['start'], params['end']).filter(
+                                    ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
+                                        ee.Filter.eq('MGRS_TILE', tile)).filter(
+                                            ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).filter(
+                                            ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 20)).sort(
+                                                'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
 
         print("numero de imagens {}".format(newDataset.size().getInfo()))
         
@@ -567,9 +578,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
             gradeInter = ee.Geometry(gradeInGeo.intersection(limiteCaat))
             del gradeInGeo
             areaInt = gradeInter.area(1).getInfo()
-            print("area #### {} ####".format(areaInt))
-            footprint = gradeInter.getInfo()['coordinates']
-            print("footprint com {} pontos para o poligon \n".format( len(footprint[0])))
+            print("area #### {} ####".format(areaInt))           
             
             # print(gradeInter.getInfo())
             if (tile in grades_Solape and lado == 'B') or areaInt < 1000:
@@ -580,6 +589,8 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
             
             else:
                 print("ntro")
+                footprint = gradeInter.getInfo()['coordinates']
+                print("footprint com {} pontos para o poligon \n".format( len(footprint[0])))
                 
                 try:
                     # newDatsetDiv = newDataset.map(lambda image: image.clip(gradeInter))

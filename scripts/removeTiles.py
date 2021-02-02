@@ -19,11 +19,12 @@ bandasInd = [
         ]
 
 dictArqReg = {  
-    '9':  ["25MBP", "25LBL","25MBM","25MBN"]
+    # '9':  ["25MBP", "25LBL","25MBM","25MBN"]
     # '52': ["24MXA"],
     # '95': ["24LTJ","24LUK","24LUL","24LUN","24LVL","24MVB","24MWA","24MXA",],  
     # '95': ["23LRD","24LTJ","24LUJ","24LVM"],  
-    # '138': ["23MPM","23MQM","23MQN","23MRN","23MRQ","23MRR","23MRS","24MTA",
+    '138': ["23KNB","23LMH","23LNH","23LMC"]
+    # "23MPM","23MQM","23MQN","23MRN","23MRQ","23MRR","23MRS","24MTA",
     #         "24MTT","24MTV","23KPB","23LND","23LNE","23LNF","23LNG","23LNH",
     #         "23LPG","23LPH","23LQE"]
 }
@@ -39,6 +40,8 @@ dictArqRegOther = {
     '138': ["23MRS","24LTQ","24MTB","24MUA","24MUB","23LQJ","23LQK","23LRK"]
 }
 
+
+bandasInd = [] 
 pathMosaic = 'users/mapbiomascaatinga05/mosaicSentinel2'
 pathMosaicMB = 'projects/mapbiomas-workspace/AMOSTRAS/col5/CAATINGA/MOSAIC/mosaics'
 mosaicS2 = ee.ImageCollection(pathMosaic)

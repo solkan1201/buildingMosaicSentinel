@@ -18,16 +18,19 @@ lsTilesCaat = [
     '25LBL','25MBM','25MBN','25MBP','25MBQ'
 ]
 dictArqReg = {    
-        # '9': ["25MBP","25LBL","25MBM","25MBN"],   # 
-        '52': ["24MXA","24MXV","24MYV","24MZV"],  # ,"24MXA","24LVM","24MXS","24LXQ","24MYU"
-        '95': ["24LUN","24MVB","24MVS","24MWA","24MXA"],  
+        '9': ["25MBP","25LBL","25MBM","25MBN"],   # 
+        '52': ["24LVM","24MXV","24MYU","24MYV","24MZS","24LWQ"],  #"24MYS","24MXA","24MXS","24LXQ","24MZV","24MYV",
+        '95': ["24LUN","24MVB","24MUA","24MXA","24MWA"],  # "24MVB",,"24MXA""24MVS","24MWA"
 #         # "24LTJ","24LUK","24LUL","24LUN","24LVL","24MVB","24MWA","24MXA",
 #         #          "23LRD","24LTJ","24LUJ","24LVM","24MWU",
               
-        '138': ["23LQE"] #"24MTA","24MTV",
+        '138': ["23LNC","23LNH","23LPH","24MTA","24MTB","24MTT","24MTV","23LQE"]  
+        #"23KNB","23LMH","23LNH","23LMC"
+        # [
+        #         "24MUA","24MUB","23LNC"] #"24MTV",        
 #         #      "23MPM","23MQM","23MQN","23MRN","23MRQ","23MRR","23MRS",
 #         #     "23KPB","23LND","23LNE","23LNF","23LNG","23LNH","23MPN",
-#         #     "23LPG","23LPH","24MTA","24MTT","24MTU","24MTV","23LNC"
+#         #     "23LPG","23LPH","24MTA","24MTT","24MTU","23LNC"
        
 }
 
