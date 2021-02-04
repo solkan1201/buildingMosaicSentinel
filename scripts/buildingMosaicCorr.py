@@ -694,6 +694,7 @@ lsBND_ind = [
         ]
 lsIndMin = []
 lsIndMax = []
+listException = tiles_Orb.lsICsizeZero
 
 # if params['isCaatinga']:
 #     lsTiles = auxiliar.lsTilesCaat
@@ -744,19 +745,29 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
     for tile in lsTiles:  
 
         print("Processando imagens de orbita  📡 {} >>  e tile 📡 {} >> ".format(orbNo, tile))
-
+        item = str(orbNo) + '_' + tile
         geomet = gradeS2.filter(ee.Filter.And(
                                             ee.Filter.eq('MGRS_TILE', tile),
                                             ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))
                                         )).geometry() 
 
-        newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
+        if item in listException:
+            newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
                         params['start'], params['end']).filter(
                                 ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
                                     ee.Filter.eq('MGRS_TILE', tile)).filter(
-                                        ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).filter(
-                                        ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 15)).sort(
+                                        ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).sort(
                                             'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
+            # https://code.earthengine.google.com/2d3d0ac8c8d1c9e0a8c9a2356495f3a1
+        
+        else:
+            newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
+                            params['start'], params['end']).filter(
+                                    ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
+                                        ee.Filter.eq('MGRS_TILE', tile)).filter(
+                                            ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).filter(
+                                            ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 20)).sort(                                                
+                                                'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
 
         for lado in ['A', 'B']:
 

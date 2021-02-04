@@ -735,7 +735,7 @@ lsBND_ind = [
         ]
 lsIndMin = []
 lsIndMax = []
-listException = ['52_24MXA'] #,'52_24MXT'
+listException = tiles_Orb.lsICsizeZero
 # if params['isCaatinga']:
 #     lsTiles = auxiliar.lsTilesCaat
 # else:
@@ -826,7 +826,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqRegOther.items():
                                         ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
                                             ee.Filter.eq('MGRS_TILE', tile)).filter(
                                                 ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).filter(
-                                                ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 20)).sort(
+                                                ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 20)).sort(                                                
                                                     'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
             
             print("numero de imagens a processar ", newDataset.size().getInfo())

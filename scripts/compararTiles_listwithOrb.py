@@ -18,15 +18,19 @@ lsTilesCaat = [
     '25LBL','25MBM','25MBN','25MBP','25MBQ'
 ]
 dictArqReg = {    
-        '9': ["25MBP","25LBL","25MBM","25MBN"],   # 
-        '52': ["24LVM","24MXV","24MYU","24MYV","24MZS","24LWQ"],  #"24MYS","24MXA","24MXS","24LXQ","24MZV","24MYV",
-        '95': ["24LUN","24MVB","24MUA","24MXA","24MWA"],  # "24MVB",,"24MXA""24MVS","24MWA"
+        # '9': ["25MBP","25LBL","25MBM","25MBN"],   # 
+        # '52': ["24MWT","24MZS"],  
+        #"24MYS","24MXA","24MXS","24LXQ","24MZV","24MYV","24MXV","24MYU","24MYV",
+        # "24MZS","24LWQ","24LVM",
+        '95': ['24MXA'],  # "24MUA","24MUB"
+        # "24LTJ", "24MUB","24MWB","24MXA"
+          # "24MVB",,"24MXA""24MVS","24MWA","24LUN","24MVB","24MUA","24MXA","24MWA"
 #         # "24LTJ","24LUK","24LUL","24LUN","24LVL","24MVB","24MWA","24MXA",
 #         #          "23LRD","24LTJ","24LUJ","24LVM","24MWU",
               
-        '138': ["23LNC","23LNH","23LPH","24MTA","24MTB","24MTT","24MTV","23LQE"]  
-        #"23KNB","23LMH","23LNH","23LMC"
-        # [
+        # '138': ["24MUA","23LNH"]  
+        #"23KNB","23LMH","23LNH","23LMC","23MRS", 
+        # ["23LNC","23LNH","23LPH","24MTA","24MTB","24MTT","24MTV","23LQE"
         #         "24MUA","24MUB","23LNC"] #"24MTV",        
 #         #      "23MPM","23MQM","23MQN","23MRN","23MRQ","23MRR","23MRS",
 #         #     "23KPB","23LND","23LNE","23LNF","23LNG","23LNH","23MPN",
@@ -35,16 +39,16 @@ dictArqReg = {
 }
 
 dictArqRegOther = {    
-        '52': ["24MXT"],            
+        '52': ["24LVM"],            
                 # "24MWT","24MXV","24MYS","24MYV","24MZS","24MZV",
-                # "24LWQ","24LWR"
+                # "24LWQ",,"24MXT""24LWR"
                 
-        '95': ["24LTQ","24LVR"],
+        '95': ["24LTQ","24LWR"],
                 # "24LWR","24MUA","24MUB","24MVB","24MWA","24MWB",
-                # "24MXA"  
-        '138': [ "24MTB",
-                # "23LRK","23MRS","24LTQ","24MUA","24MUB","23LQJ","23LQK"
-                ]
+                # "24MXA"  ,"24LVR""24MWU"
+        '138': ["24LTQ","23LQK","23LRK"]
+                # "23MRS","24MUA","24MUB","24MTB","23LQJ",
+                # ]
 }
 
 dictArqRegPan = {    
@@ -173,64 +177,44 @@ dictArqRegPampa = {
 }
 
 
-# dictArqRegCaat ={
-    
-#     '9' : [
-#             '24LYR',
-#         #     '24LZR','24MZS','24MZT','24MZU','24MZV','25LBL','25MBM',
-#         #     '25MBN','25MBP','24LYP','24LYQ','25MBQ'                
-#         ],
-#     '38' : [
-#             '23LNK','23LNL',
-#         #     '23LPL','23MPM','23MPN','23MQN','23MQP',
-#         #         '23MPP',
-#         #         '23MQQ','23MQR','23MQS',
-#         #     '23LNJ','23LPJ','23LPK','23LMG','23LNF',
-#         #     '23LNG','23LNH',
-#         #         '23LPH',
-#         #         '23LMH','23LMJ','23MNM',
-#         #         '23MRT'
-#         ],
-#     '52' : [
-#             '24LZR','24MWT',
-#         #     '24MWU','24MXA','24MXV','24MYV',
-#         #     '24MZS','24MZT','24MZU','24MZV','24LWR','24LXR','24LYQ','24LYR',
-#         #     '24MWS','24MYS','24MYT','24LWP','24LVL','24LVN',
-#         #         '24MXS','24MXT','24MXU','24MYU',
-#         #     '24LVP','24LWM','24LWN','24LWQ','24LXN','24LXP','24LXQ','24LYP',
-#         #     '24LVM','24LWQ','24LVQ',
-#         #         '25MBQ'
-#         ],
-#     '95' : [
-#             '23LRL','24LTR'
-#         #     ,'24MTS','24MTT','24MUS','24MUT','24MUU','24MUV',
-#         #     '24MUA','24MUB','24MVA','24MVB',
-#         #         '24MVS', '24MVT','24MVU',
-#         #         '24LTP','24LUN','24MWA','24MWU',
-#         #     '24MVV','24MWB','24MWS','24MWT','24MWV','24MXA',
-#         #     '24MXT','24MXU','24MXV','23LQC','23LQD','23LQE','23LRE','23LRF',
-#         #     '23LRJ','24LTQ','24LWR','24LTN','24LTQ','24LVQ','24LTM',
-#         #     '24LVR','24LUR','23LQF','23LRD','23LRG','23LRH','24LTJ','24LTN',
-#         #     '24LTK','24LTL','24LUM','24LUJ','24LUK','24LUL','24LVL','24LVM',
-#         #     '24LVN','24LWP','24LWQ','24LUP','24LVP','24LUQ','24MUC'      
-#         ],
-#     '138' : [
-#             '23LNK','23MPP',
-#         #     '23LPL','23LQL','23MRR',
-#         #     '23MQM','23MQN','23MPM',
-#         #     '23MQP','23MQQ','23MQR','23MQS','23MRP',
-#         #     '23MRM','23MRN','23MRQ',
-#         #     '24LTR','24MTS','24MUS',
-#         #     '23MRS','24MTA','24MTB','24MTT','24MTU','24MTV',
-#         #     '24MUA','24MUB','24MUT','24MUU','24MUV','24MVB','23KPB','23LMC',
-#         #     '23LNC','23LNF','23LNG','23LNH','23LQE',
-#         #     '23LND','23LNE','23LNJ',
-#         #     '23LPD','23LPE','23LPF','23LPG','23LPH','23LPJ','23LPK','23LQG',
-#         #     '23LQH','23LQJ','23LQK','23LRH','23LRJ','23LRK','23LRL','24LTM',
-#         #     '24LTQ','23LRE','23LPC','23LQC','23LQD','23LQF','23LRF','23LRG',
-#         # '23KNB','23MRT','24MTC','24MUC'
-#         ]     
-# }
+dictArqRegCaat ={    
+    '9' : [
+            '24LYR','24LZR','24MZS','24MZT','24MZU','24MZV','25LBL','25MBM',
+            '25MBN','25MBP','24LYP','24LYQ','25MBQ'                
+        ],
+    '38' : [
+            '23LNK','23LNL','23LPL','23MPM','23MPN','23MQN','23MQP','23MPP',
+            '23LNJ','23LPJ','23LPK','23LMG','23LNF','23MQQ','23MQR','23MQS',
+            '23LNG','23LNH','23LPH','23LMH','23LMJ','23MNM','23MRT'
+        ],
+    '52' : [
+            '24LZR','24MWT','24MWU','24MXA','24MXV','24MYV','24MXS','24MXT',
+            '24MZS','24MZT','24MZU','24MZV','24LWR','24LXR','24LYQ','24LYR',
+            '24MWS','24MYS','24MYT','24LWP','24LVL','24LVN','24MXU','24MYU',                
+            '24LVP','24LWM','24LWN','24LWQ','24LXN','24LXP','24LXQ','24LYP',
+            '24LVM','24LWQ','24LVQ','25MBQ'
+        ],
+    '95' : [
+            '23LRL','24LTR','24LTP','24LUN','24MWA','24MWU','24MVT','24MVU',
+            '24MTS','24MTT','24MUS','24MUT','24MUU','24MUV','24MVA','24MVB',
+            '24MUA','24MUB','24MVS','24MVV','24MWB','24MWS','24MWT','24MWV',             
+            '24MXT','24MXU','24MXV','23LQC','23LQD','23LQE','23LRE','23LRF',
+            '23LRJ','24LTQ','24LWR','24LTN','24LTQ','24LVQ','24LTM','24MXA',
+            '24LVR','24LUR','23LQF','23LRD','23LRG','23LRH','24LTJ','24LTN',
+            '24LTK','24LTL','24LUM','24LUJ','24LUK','24LUL','24LVL','24LVM',
+            '24LVN','24LWP','24LWQ','24LUP','24LVP','24LUQ','24MUC'  
+        ],
+    '138' : [
+            '23LNK','23MPP','23LPL','23LQL','23MRR','23MQM','23MQN','23MPM',
+            '23MQP','23MQQ','23MQR','23MQS','23MRP','23MRM','23MRN','23MRQ',
+            '24LTR','24MTS','24MUS','23MRS','24MTA','24MTB','24MTT','24MTU',
+            '24MUA','24MUB','24MUT','24MUU','24MUV','24MVB','23KPB','23LMC',
+            '23LNC','23LNF','23LNG','23LNH','23LQE','24MTV','23LND','23LNE',
+            '23LPD','23LPE','23LPF','23LPG','23LPH','23LPJ','23LPK','23LQG',
+            '23LQH','23LQJ','23LQK','23LRH','23LRJ','23LRK','23LRL','24LTM',
+            '24LTQ','23LRE','23LPC','23LQC','23LQD','23LQF','23LRF','23LRG','23KNB','23MRT','24MTC','24MUC','23LNJ',
+        ]     
+}
 
 # dictArqReg = {
 #     '95': ['24MVS', '24LUL', '24MXU'],   #, 
@@ -491,3 +475,33 @@ dictArqRegbandas = {
             '24MUC': []
     }     
 }
+
+lsICsizeZero = [
+        "9_24LYR","9_24LZR","9_24MZS","9_24MZT","9_24MZU","9_24MZV","9_25LBL","9_25MBM",
+        "9_25MBN","9_25MBP","9_24LYP","9_24LYQ","9_25MBQ","38_23LNK","38_23LNL","38_23LPL",
+        "38_23MPM","38_23MPN","38_23MQN","38_23MQP","38_23MPP","38_23LNJ","38_23LPJ","38_23LPK",
+        "38_23LMG","38_23LNF","38_23MQQ","38_23MQR","38_23MQS","38_23LNG","38_23LNH","38_23LPH",
+        "38_23LMH","38_23LMJ","38_23MNM","38_23MRT","52_24LZR","52_24MWT","52_24MWU","52_24MXA",
+        "52_24MXV","52_24MYV","52_24MXS","52_24MXT","52_24MZS","52_24MZT","52_24MZU","52_24MZV",
+        "52_24LWR","52_24LXR","52_24LYQ","52_24LYR","52_24MWS","52_24MYS","52_24MYT","52_24LWP",
+        "52_24LVL","52_24LVN","52_24MXU","52_24MYU","52_24LVP","52_24LWM","52_24LWN","52_24LWQ",
+        "52_24LXN","52_24LXP","52_24LXQ","52_24LYP","52_24LVM","52_24LWQ","52_24LVQ","52_25MBQ",
+        "95_23LRL","95_24LTR","95_24LTP","95_24LUN","95_24MWA","95_24MWU","95_24MVT","95_24MVU",
+        "95_24MTS","95_24MTT","95_24MUS","95_24MUT","95_24MUU","95_24MUV","95_24MVA","95_24MVB",
+        "95_24MUA","95_24MUB","95_24MVS","95_24MVV","95_24MWB","95_24MWS","95_24MWT","95_24MWV",
+        "95_24MXT","95_24MXU","95_24MXV","95_23LQC","95_23LQD","95_23LQE","95_23LRE","95_23LRF",
+        "95_23LRJ","95_24LTQ","95_24LWR","95_24LTN","95_24LTQ","95_24LVQ","95_24LTM","95_24MXA",
+        "95_24LVR","95_24LUR","95_23LQF","95_23LRD","95_23LRG","95_23LRH","95_24LTJ","95_24LTN",
+        "95_24LTK","95_24LTL","95_24LUM","95_24LUJ","95_24LUK","95_24LUL","95_24LVL","95_24LVM",
+        "95_24LVN","95_24LWP","95_24LWQ","95_24LUP","95_24LVP","95_24LUQ","95_24MUC","138_23LNK",
+        "138_23MPP","138_23LPL","138_23LQL","138_23MRR","138_23MQM","138_23MQN","138_23MPM",
+        "138_23MQP","138_23MQQ","138_23MQR","138_23MQS","138_23MRP","138_23MRM","138_23MRN",
+        "138_23MRQ","138_24LTR","138_24MTS","138_24MUS","138_23MRS","138_24MTA","138_24MTB",
+        "138_24MTT","138_24MTU","138_24MUA","138_24MUB","138_24MUT","138_24MUU","138_24MUV",
+        "138_24MVB","138_23KPB","138_23LMC","138_23LNC","138_23LNF","138_23LNG","138_23LNH",
+        "138_23LQE","138_24MTV","138_23LND","138_23LNE","138_23LPD","138_23LPE","138_23LPF",
+        "138_23LPG","138_23LPH","138_23LPJ","138_23LPK","138_23LQG","138_23LQH","138_23LQJ",
+        "138_23LQK","138_23LRH","138_23LRJ","138_23LRK","138_23LRL","138_24LTM","138_24LTQ",
+        "138_23LRE","138_23LPC","138_23LQC","138_23LQD","138_23LQF","138_23LRF","138_23LRG",
+        "138_23KNB","138_23MRT","138_24MTC","138_24MUC","138_23LNJ"
+]
