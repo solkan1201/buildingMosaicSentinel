@@ -770,7 +770,7 @@ limiteCaat = ee.FeatureCollection(params["assetLimBra"])
 imgClass = ee.Image(params["assetMapbiomas"]).select("classification_2019")  
 imgClass = imgClass.eq(33) # classe de agua com pixels = 1 o resto = 0
 # selecionando uam borda maior do espelho de agua 
-imgClass = imgClass.focal_min(2, 'square').focal_max(3,'square')
+imgClass = imgClass.focal_max(3,'square')   #.focal_min(2, 'square')
 
 datasetCloudS2 = ee.ImageCollection('COPERNICUS/S2_CLOUD_PROBABILITY')\
     .filterDate(params['start'], params['end'])
