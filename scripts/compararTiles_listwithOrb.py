@@ -39,13 +39,13 @@ dictArqReg = {
 }
 
 dictArqRegOther = {    
-        '52': ["24LVM"],            
+        # '52': ["24LVM"],            
                 # "24MWT","24MXV","24MYS","24MYV","24MZS","24MZV",
                 # "24LWQ",,"24MXT""24LWR"
                 
         '95': ["24LTQ","24LWR"],
-                # "24LWR","24MUA","24MUB","24MVB","24MWA","24MWB",
-                # "24MXA"  ,"24LVR""24MWU"
+        #         # "24LWR","24MUA","24MUB","24MVB","24MWA","24MWB",
+        #         # "24MXA"  ,"24LVR""24MWU"
         '138': ["24LTQ","23LQK","23LRK"]
                 # "23MRS","24MUA","24MUB","24MTB","23LQJ",
                 # ]

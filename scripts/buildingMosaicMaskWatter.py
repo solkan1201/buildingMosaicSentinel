@@ -69,9 +69,10 @@ class ClassCalcIndicesSpectral(object):
 
         iDimgP = imgP.id()        
         imgMask = ee.Image(self.imgColClouds.filter(ee.Filter.eq('system:index', iDimgP)).first())
-
+        
+        imgMask = imgMask.lt(20).focal_min(1.5).rename('mask')
         # creando Mascara para pixels uties         
-        return  imgP.updateMask(imgMask.lt(15))  
+        return  imgP.updateMask(imgMask).addBands(imgMask)  
     
     def NomalizeImg(self, image, bnd, geomet):
         
@@ -169,7 +170,11 @@ class ClassCalcIndicesSpectral(object):
 
     def match_Images(self, image):    
 
-        image = self.maskS2clouds(image)
+        image = self.maskS2clouds(image) 
+        
+        # levantando a mascara de nuvens 
+        mask = image.select('mask')
+         
         # image = self.strecht_Images(image, self.geomet)
         imgTempMaskAll = self.imgClass.clip(self.geomet).eq(0)
         imgTempMaskWater = self.imgClass.clip(self.geomet).eq(1)
@@ -186,6 +191,7 @@ class ClassCalcIndicesSpectral(object):
             imgTemp = imgTemp.unmask(0).clip(self.geomet).toUint16()
 
             matching = matching.addBands(imgTemp.add(imgWater.select(band)))
+            matching = matching.updateMask(mask)
 
         matching = ee.Image.cat(matching.select(self.options['bandas']))
         matching = matching.set('system:footprint', self.footprint)
@@ -830,7 +836,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqRegOther.items():
                                                     'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
             
             print("numero de imagens a processar ", newDataset.size().getInfo())
-            for lado in ['A', 'B']:
+            for lado in ['A','B']:  #
 
                 geometDiv = gradeDiv.filter(ee.Filter.eq('label', tile + '_' + lado)).geometry()
                 gradeInter = geomet.intersection(geometDiv)            
@@ -889,7 +895,7 @@ for orbNo, lsTiles in tiles_Orb.dictArqRegOther.items():
                             nameAl = str(params['ano']) + '_' + str(orbNo)  + '_' + tile + '_' + lado + '_' + bndMedian + '_' + params['periodo']
                             exportarClassification(imgAnalitic, nameAl, gradeInter)
 
-                            # contador = gerenciador(contador)
+                            contador = gerenciador(contador)
                             print("✅ ")
                     except:
 

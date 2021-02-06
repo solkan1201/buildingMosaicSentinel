@@ -27,10 +27,10 @@ dictArqReg = {
                 # "24MWT","24MXV","24MYS","24MYV","24MZS","24MZV",
                 # "24LWQ",,"24MXT"
                 
-    '95': ["24LTQ","24LWR","24MWT"],
+    '95': ["24LTQ","24LWR","23LRJ","23LRK","24LTP"],
                 # "24LWR","24MUA","24MUB","24MVB","24MWA","24MWB",
                 # "24MXA"  ,"24LVR""24MWU"
-    '138': ["24LTQ","23LQK","23LRJ","23LRK"]
+    '138': ["23LQJ","23LRK"]
     # '138': ["23KNB","23LMH","23LNH","23LMC"]
     # "23MPM","23MQM","23MQN","23MRN","23MRQ","23MRR","23MRS","24MTA",
     #         "24MTT","24MTV","23KPB","23LND","23LNE","23LNF","23LNG","23LNH",
