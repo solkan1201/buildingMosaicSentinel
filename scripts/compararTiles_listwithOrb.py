@@ -22,7 +22,7 @@ dictArqReg = {
         # '52': ["24MWT","24MZS"],  
         #"24MYS","24MXA","24MXS","24LXQ","24MZV","24MYV","24MXV","24MYU","24MYV",
         # "24MZS","24LWQ","24LVM",
-        '95': ['24MXA'],  # "24MUA","24MUB"
+        '95': ['24MWT'],  # "24MUA","24MUB"
         # "24LTJ", "24MUB","24MWB","24MXA"
           # "24MVB",,"24MXA""24MVS","24MWA","24LUN","24MVB","24MUA","24MXA","24MWA"
 #         # "24LTJ","24LUK","24LUL","24LUN","24LVL","24MVB","24MWA","24MXA",
@@ -39,16 +39,16 @@ dictArqReg = {
 }
 
 dictArqRegOther = {    
-        # '52': ["24LVM"],            
+        '52': ["24LVM"],            
                 # "24MWT","24MXV","24MYS","24MYV","24MZS","24MZV",
-                # "24LWQ",,"24MXT""24LWR"
+                # "24LWQ",,"24MXT","24LWR"
                 
-        '95': ["24LTQ","24LWR"],
+        '95': ["23LRJ","24LTP"],
         #         # "24LWR","24MUA","24MUB","24MVB","24MWA","24MWB",
-        #         # "24MXA"  ,"24LVR""24MWU"
-        '138': ["24LTQ","23LQK","23LRK"]
+        #         # "24MXA"  ,"24LVR""24MWU","24LTQ","24LWR","24MWT"
+        # '138': ["23LQJ","23LRJ","23LRK"]
                 # "23MRS","24MUA","24MUB","24MTB","23LQJ",
-                # ]
+                # ]"24LTQ","23LQK"
 }
 
 dictArqRegPan = {    

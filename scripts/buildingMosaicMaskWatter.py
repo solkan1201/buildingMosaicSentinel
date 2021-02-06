@@ -785,7 +785,7 @@ print('Imagem de referencia \n ====> ' + tiles_Orb.imgRefCaat)
 operadorMosaic = ClassCalcIndicesSpectral(tiles_Orb.imgRefCaat)
 operadorMosaic.imgColClouds = datasetCloudS2
 operadorMosaic.imgClass = imgClass
-contador = 0
+contador = 10
 reducer = '_median'
 # lsMedian = [ibnd + reducer for ibnd in bandasInd]
 limiteImg = 6
