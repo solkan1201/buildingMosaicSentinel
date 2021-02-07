@@ -77,18 +77,18 @@ params = {
         'year': 'COPERNICUS/S2_SR/20200702T130251_20200702T130252_T24MVS',
         'dry': 'COPERNICUS/S2_SR/20200930T130251_20200930T130253_T24MVS'
     },
-    'numeroLimit': 95,
+    'numeroLimit': 50,
     'numeroTask': 6,
     'conta' : {
-        '0':  'caatinga01',
-        '16': 'caatinga02',
-        '32': 'caatinga03',
-        '42': 'caatinga04',
-        # '42': 'caatinga05',        
-        '56': 'solkan1201',
-        '68': 'diegoGmail',
-        '80': 'rodrigo',
-        '90': 'diegoUEFS',
+        # '0':  'caatinga01',
+        '0': 'caatinga02',
+        '6': 'caatinga03',
+        '12': 'caatinga04',
+        '18': 'caatinga05',        
+        '24': 'solkan1201',
+        '30': 'diegoGmail',
+        '36': 'rodrigo',
+        '42': 'diegoUEFS',
         # '64': 'Rafael',
         # '75': 'Nerivaldo',
         #'39': 'solkanCengine',
@@ -184,7 +184,7 @@ datasetCloudS2 = ee.ImageCollection('COPERNICUS/S2_CLOUD_PROBABILITY')\
 contador = 30
 limiteImg = 7
 
-for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
+for orbNo, lsTiles in tiles_Orb.dictArqRegCaat.items():
 
     for tile in lsTiles:  
 
@@ -195,6 +195,9 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                                             ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))
                                         )).geometry() 
 
+        
+        geometDiv = gradeDiv.filter( ee.Filter.eq('NAME', tile)).geometry()
+        
         if item in listException:
             newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
                         params['start'], params['end']).filter(
@@ -214,16 +217,14 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
                                                 'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
 
         
-        gradeInter = ee.Geometry(geomet.intersection(limiteCaat))
-        footprint = gradeInter.getInfo()['coordinates']
-        areaInt = gradeInter.area(1).getInfo()
-        print("area #### {} ####".format(areaInt))
+        gradeInter = ee.Geometry(geometDiv.intersection(geomet).intersection(limiteCaat))         
+        footprint = gradeInter.getInfo()['coordinates']        
         
         imgOring = ee.Image(newDataset.median())
         # exemplo da função desenvolvida abaixo
         #https://code.earthengine.google.com/192489de3ae1f9e6ac2e95b03c648180
         numImg = 0
-        imgMos = ee.Image().uint16()
+        imgMos = None
         imgMasking = ee.Image(0).clip(geomet)
 
         for cc, mbnd in enumerate(bandasInd):
@@ -236,13 +237,16 @@ for orbNo, lsTiles in tiles_Orb.dictArqReg.items():
             if numImg == 0:
                 numImg = imgTemp.first().get('NUM_IMAGENS')
             
-            imgTemp = ee.Image(imgTemp.median()).rename(bandasIndCorr[cc])
-            imgMasking = imgMasking.add(imgTemp.unmask(-1).lte(0))
+            imgTemp = imgTemp.median().rename(bandasIndCorr[cc])
+            imgMasking = imgMasking.add(imgTemp.unmask(-1).clip(gradeInter).lte(0))
 
             imgBanda = imgOring.select(lsBND_ind[cc])
             imgBanda = imgBanda.updateMask(imgMasking)
-
-            imgMos = imgMos.addBands(imgTemp.add(imgBanda))
+            
+            if mbnd == 'median_blue':
+                imgMos = imgTemp.add(imgBanda)
+            else:
+                imgMos = imgMos.addBands(imgTemp.add(imgBanda))
 
         imgMos = ee.Image.cat(imgMos.select(bandasIndCorr))
         imgMos = imgMos.clip(gradeInter)
