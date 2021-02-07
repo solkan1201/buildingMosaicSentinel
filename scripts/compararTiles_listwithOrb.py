@@ -179,8 +179,9 @@ dictArqRegPampa = {
 
 dictArqRegCaat ={    
     '9' : [
-            '24LYR','24LZR','24MZS','24MZT','24MZU','24MZV','25LBL','25MBM',
-            '25MBN','25MBP','24LYP','24LYQ','25MBQ'                
+        #     '24LYR','24LZR','24MZS','24MZT','24MZU','24MZV','25LBL','25MBM',
+        #     '25MBN','25MBP','24LYP','24LYQ',
+            '25MBQ'                
         ],
     '38' : [
             '23LNK','23LNL','23LPL','23MPM','23MPN','23MQN','23MQP','23MPP',
@@ -212,7 +213,8 @@ dictArqRegCaat ={
             '23LNC','23LNF','23LNG','23LNH','23LQE','24MTV','23LND','23LNE',
             '23LPD','23LPE','23LPF','23LPG','23LPH','23LPJ','23LPK','23LQG',
             '23LQH','23LQJ','23LQK','23LRH','23LRJ','23LRK','23LRL','24LTM',
-            '24LTQ','23LRE','23LPC','23LQC','23LQD','23LQF','23LRF','23LRG','23KNB','23MRT','24MTC','24MUC','23LNJ',
+            '24LTQ','23LRE','23LPC','23LQC','23LQD','23LQF','23LRF','23LRG',
+            '23KNB','23MRT','24MTC','24MUC','23LNJ'
         ]     
 }
 

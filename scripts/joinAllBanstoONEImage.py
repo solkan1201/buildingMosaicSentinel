@@ -197,71 +197,77 @@ for orbNo, lsTiles in tiles_Orb.dictArqRegCaat.items():
 
         
         geometDiv = gradeDiv.filter( ee.Filter.eq('NAME', tile)).geometry()
-        
-        if item in listException:
-            newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
-                        params['start'], params['end']).filter(
-                                ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
-                                    ee.Filter.eq('MGRS_TILE', tile)).filter(
-                                        ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).sort(
-                                            'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
-            # https://code.earthengine.google.com/2d3d0ac8c8d1c9e0a8c9a2356495f3a1
+        gradeInter = ee.Geometry(geometDiv.intersection(geomet).intersection(limiteCaat))         
+        footprint = gradeInter.getInfo()['coordinates']        
+        areaInt = gradeInter.area(1).getInfo()
+        print("area ", areaInt)
+        if int(areaInt) < 1000:
+            continue
         
         else:
-            newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
+            
+            if item in listException:
+                newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
                             params['start'], params['end']).filter(
                                     ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
                                         ee.Filter.eq('MGRS_TILE', tile)).filter(
-                                            ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).filter(
-                                            ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 20)).sort(                                                
+                                            ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).sort(
                                                 'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
-
-        
-        gradeInter = ee.Geometry(geometDiv.intersection(geomet).intersection(limiteCaat))         
-        footprint = gradeInter.getInfo()['coordinates']        
-        
-        imgOring = ee.Image(newDataset.median())
-        # exemplo da função desenvolvida abaixo
-        #https://code.earthengine.google.com/192489de3ae1f9e6ac2e95b03c648180
-        numImg = 0
-        imgMos = None
-        imgMasking = ee.Image(0).clip(geomet)
-
-        for cc, mbnd in enumerate(bandasInd):
-            print("✅ Join band 🔰 " + mbnd + " 🔰")
-            imgTemp = mS2Caat.filter(ee.Filter.And(
-                                            ee.Filter.eq('MGRS_TILE', tile),
-                                            ee.Filter.eq('SENSING_ORBIT_NUMBER', orbNo),
-                                            ee.Filter.eq('banda', mbnd)
-                                        )).limit(2)
-            if numImg == 0:
-                numImg = imgTemp.first().get('NUM_IMAGENS')
+                # https://code.earthengine.google.com/2d3d0ac8c8d1c9e0a8c9a2356495f3a1
             
-            imgTemp = imgTemp.median().rename(bandasIndCorr[cc])
-            imgMasking = imgMasking.add(imgTemp.unmask(-1).clip(gradeInter).lte(0))
-
-            imgBanda = imgOring.select(lsBND_ind[cc])
-            imgBanda = imgBanda.updateMask(imgMasking)
-            
-            if mbnd == 'median_blue':
-                imgMos = imgTemp.add(imgBanda)
             else:
-                imgMos = imgMos.addBands(imgTemp.add(imgBanda))
+                newDataset = ee.ImageCollection('COPERNICUS/S2_SR').filterDate(
+                                params['start'], params['end']).filter(
+                                        ee.Filter.eq('SENSING_ORBIT_NUMBER', int(orbNo))).filter(
+                                            ee.Filter.eq('MGRS_TILE', tile)).filter(
+                                                ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', params['ccobert'])).filter(
+                                                ee.Filter.lt('NODATA_PIXEL_PERCENTAGE', 20)).sort(                                                
+                                                    'CLOUDY_PIXEL_PERCENTAGE').select(params["bandasAll"]).limit(limiteImg)
 
-        imgMos = ee.Image.cat(imgMos.select(bandasIndCorr))
-        imgMos = imgMos.clip(gradeInter)
-        
-        # set properties
-        print("set all properties")
-        imgMos = imgMos.set('system:footprint', footprint)
-        imgMos = imgMos.set('year', params['ano'])
-        imgMos = imgMos.set('MGRS_TILE', tile)
-        imgMos = imgMos.set('SENSING_ORBIT_NUMBER', orbNo)
-        imgMos = imgMos.set('NUM_IMAGENS', numImg)        
-        imgMos = imgMos.set('periodo', params['periodo'])        
+            
+            
+            imgOring = ee.Image(newDataset.median())
+            # exemplo da função desenvolvida abaixo
+            #https://code.earthengine.google.com/192489de3ae1f9e6ac2e95b03c648180
+            numImg = 0
+            imgMos = None
+            imgMasking = ee.Image(0).clip(geomet)
 
-        # save imagens 
-        nameAl = str(params['ano']) + '_' + str(orbNo)  + '_' + tile + '_' +  params['periodo']  #  
-        exportarClassification(imgMos, nameAl, gradeInter)
+            for cc, mbnd in enumerate(bandasInd):
+                print("✅ Join band 🔰 " + mbnd + " 🔰")
+                imgTemp = mS2Caat.filter(ee.Filter.And(
+                                                ee.Filter.eq('MGRS_TILE', tile),
+                                                ee.Filter.eq('SENSING_ORBIT_NUMBER', orbNo),
+                                                ee.Filter.eq('banda', mbnd)
+                                            )).limit(2)
+                if numImg == 0:
+                    numImg = imgTemp.first().get('NUM_IMAGENS')
+                
+                imgTemp = imgTemp.median().rename(bandasIndCorr[cc])
+                imgMasking = imgMasking.add(imgTemp.unmask(-1).clip(gradeInter).lte(0))
 
-        contador = gerenciador(contador)
+                imgBanda = imgOring.select(lsBND_ind[cc])
+                imgBanda = imgBanda.updateMask(imgMasking)
+                
+                if mbnd == 'median_blue':
+                    imgMos = imgTemp.add(imgBanda)
+                else:
+                    imgMos = imgMos.addBands(imgTemp.add(imgBanda))
+
+            imgMos = ee.Image.cat(imgMos.select(bandasIndCorr))
+            imgMos = imgMos.clip(gradeInter)
+            
+            # set properties
+            print("set all properties")
+            imgMos = imgMos.set('system:footprint', footprint)
+            imgMos = imgMos.set('year', params['ano'])
+            imgMos = imgMos.set('MGRS_TILE', tile)
+            imgMos = imgMos.set('SENSING_ORBIT_NUMBER', orbNo)
+            imgMos = imgMos.set('NUM_IMAGENS', numImg)        
+            imgMos = imgMos.set('periodo', params['periodo'])        
+
+            # save imagens 
+            nameAl = str(params['ano']) + '_' + str(orbNo)  + '_' + tile + '_' +  params['periodo']  #  
+            exportarClassification(imgMos, nameAl, gradeInter)
+
+            contador = gerenciador(contador)
